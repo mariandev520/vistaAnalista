@@ -10,6 +10,12 @@ Bocetos de interfaz (HTML estático, sin build) para el servicio de reposición 
 | `supervisor.html` | Supervisor comercial (panel de Marcos Ferreyra) | Boceto inicial |
 
 Ambas comparten `styles.css` y el selector de vista arriba a la izquierda (el menú del workspace).
+Navegación por `#hash` (deep-link a cada página).
+
+### Vista de analista — páginas
+
+Resumen · **Inbox operativo** (WhatsApp + email + plataforma, con seguimiento de respuestas
+y armados) · Clientes · Tiendas · Reportes de campo · Fotos · Precios · Quiebres · Equipo · Cobertura.
 
 ## Deploy en Vercel
 

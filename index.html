@@ -27,7 +27,7 @@
       <div class="snav">
         <button class="sitem" id="btnPal"><span class="ic">🔍</span><span class="hide-slim">Buscar</span><span class="kbd hide-slim">⌘K</span></button>
         <button class="sitem" data-toast="Se abriría el historial"><span class="ic">🕘</span><span class="hide-slim">Recientes</span></button>
-        <button class="sitem" data-toast="3 avisos nuevos"><span class="ic">📥</span><span class="hide-slim">Bandeja</span><span class="kbd hide-slim">3</span></button>
+        <button class="sitem" data-page="inbox"><span class="ic">📥</span><span class="hide-slim">Bandeja</span><span class="kbd hide-slim" id="inbKbd">3</span></button>
       </div>
       <button class="gsec" data-group="g1"><span class="cv">▾</span><span class="hide-slim">Servicio</span><span class="plus hide-slim">＋</span></button>
       <div class="group" id="g1"><div class="tree" id="nav1"></div></div>
@@ -190,6 +190,145 @@ data.forEach(s=>{
 });
 feed.sort((a,b)=>b.fecha-a.fecha);
 
+/* ==================== INBOX OPERATIVO ==================== */
+const AHORA = new Date(2026,7,23,16,20);
+const antes = min=>new Date(AHORA-min*60000);
+const relrel = d=>{ const m=Math.round((AHORA-d)/60000);
+  return m<1?'recién':m<60?`hace ${m} min`:m<1440?`hace ${Math.round(m/60)} h`:`hace ${Math.round(m/1440)} d`; };
+const relhora = d=>`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+const CANALES = {
+  whatsapp:{t:'WhatsApp',   i:'📱', c:'green'},
+  email:   {t:'Email',      i:'✉️', c:'blue'},
+  plataforma:{t:'Plataforma',i:'💬', c:'brand'},
+};
+const CATS = {
+  reclamo:  {t:'Reclamo',               c:'red'},
+  armado:   {t:'Armado',                c:'purple'},
+  visita:   {t:'Coordinación de visita',c:'yellow'},
+  respuesta:{t:'Respuesta a cliente',   c:'blue'},
+  interno:  {t:'Interno',               c:'gray'},
+};
+const HEST = {
+  nuevo:    {t:'Sin abrir',            c:'red'},
+  responder:{t:'Te toca responder',    c:'orange'},
+  esperando:{t:'Esperando al cliente', c:'yellow'},
+  resuelto: {t:'Resuelto',             c:'green'},
+};
+const _S = n=>data.find(x=>x.n.toLowerCase().startsWith(n.toLowerCase()));
+const _C = n=>clientes.find(x=>x.n.toLowerCase().startsWith(n.toLowerCase()));
+const QR = {
+  reclamo:  ['Voy a la tienda en el día','Paso la novedad al repositor de la zona','¿Me pasás una foto del faltante?'],
+  armado:   ['Confirmo las cantidades','Lo coordino con depósito y aviso','Asigno repositor y fecha de armado'],
+  visita:   ['Reprogramo la visita','Confirmo el horario','Aviso al repositor y te confirmo'],
+  respuesta:['Te lo envío hoy','Lo reviso y te confirmo','Adjunto el informe con el detalle'],
+  interno:  ['Recibido, lo sumo','Gracias, queda registrado'],
+};
+const BANDEJA = [
+  { id:'h1', canal:'whatsapp', cat:'reclamo', estado:'nuevo', prio:'alta',
+    de:{n:'Rodrigo Sena', rol:'Encargado · Disco Rawson', ini:'RS'},
+    store:_S('Disco Rawson'), cli:_C('Fecovita'), asignado:'Vos', sla:2,
+    asunto:'Hueco de Fecovita en góndola',
+    msgs:[
+      {q:'ellos', txt:'Hola, se cayó la cenefa de los vinos Fecovita y quedó el hueco en la góndola. ¿Pueden mandar a alguien hoy?', at:antes(38)},
+      {q:'ellos', txt:'Te paso una foto de cómo quedó', at:antes(37)},
+    ]},
+  { id:'h2', canal:'email', cat:'armado', estado:'responder', prio:'alta',
+    de:{n:'Marcos Ferreyra', rol:'Trade marketing · Fecovita', ini:'MF'},
+    store:null, cli:_C('Fecovita'), asignado:'Vos', sla:6,
+    asunto:'Armado de punta — Malbec 1 L en Carrefour',
+    armado:{ fecha:'viernes 25 de agosto', lugar:'Carrefour Catamarca y Carrefour Córdoba',
+      items:[ {sku:'TR-M1', n:'Malbec 1 L', qty:'6 cajas por tienda', ok:true},
+              {sku:'POP', n:'Cenefa + zócalo de promo', qty:'1 kit por tienda', ok:false},
+              {sku:'POP', n:'Habladores de precio', qty:'12 unidades', ok:false} ]},
+    msgs:[
+      {q:'ellos', txt:'Hola, para la promo del fin de semana necesitamos armar una punta de góndola de Malbec 1 L en las Carrefour. Van el planograma y las cantidades en el adjunto. ¿Llegan a dejarlo montado el viernes?', at:antes(180)},
+    ]},
+  { id:'h3', canal:'plataforma', cat:'respuesta', estado:'esperando', prio:'normal',
+    de:{n:'Paula Rendón', rol:'KAM · Cbse', ini:'PR'},
+    store:null, cli:_C('Cbse'), asignado:'Vos', sla:null,
+    asunto:'Consolidado de quiebres de la semana',
+    msgs:[
+      {q:'ellos', txt:'¿Me pueden pasar el consolidado de quiebres de Cbse de esta semana antes del cierre?', at:antes(1500)},
+      {q:'nos', txt:'Sí, te lo mando hoy a la tarde con el detalle por tienda.', at:antes(1400)},
+    ]},
+  { id:'h4', canal:'whatsapp', cat:'visita', estado:'responder', prio:'normal',
+    de:{n:'Juan Pérez', rol:'Repositor · Centro y Puerto', ini:'JP'},
+    store:_S('Vea Edison'), cli:null, asignado:'Vos', sla:1,
+    asunto:'Vea Edison no habilita reposición hasta las 15',
+    msgs:[
+      {q:'ellos', txt:'En Vea Edison hoy no me dejan reponer hasta las 15 por recepción de mercadería. ¿Espero o paso a otra tienda y vuelvo?', at:antes(20)},
+    ]},
+  { id:'h5', canal:'email', cat:'reclamo', estado:'nuevo', prio:'normal',
+    de:{n:'Lucía Ferro', rol:'Category · Zucardi', ini:'LF'},
+    store:_S('Disco J'), cli:_C('Zucardi'), asignado:'Vos', sla:8,
+    asunto:'Diferencia de precio en Disco J. B. Justo',
+    msgs:[
+      {q:'ellos', txt:'Detectamos que en Disco J. B. Justo el cartel de Oliva 500 ml marca $ 13.900 y la lista vigente es $ 14.200. ¿Lo pueden verificar en la próxima visita?', at:antes(95)},
+    ]},
+  { id:'h6', canal:'whatsapp', cat:'armado', estado:'esperando', prio:'normal',
+    de:{n:'Marta Quiroz', rol:'Encargada · Previley Luro 3804', ini:'MQ'},
+    store:_S('Previley Luro'), cli:_C('Café Cruzeiro'), asignado:'Vos', sla:null,
+    asunto:'Isla de Café Cruzeiro — cuántas cajas',
+    armado:{ fecha:'jueves 27 de agosto', lugar:'Previley Luro 3804 · isla de entrada',
+      items:[ {sku:'LV-M2', n:'Molido 250 g', qty:'a confirmar con depósito', ok:false},
+              {sku:'LV-CP', n:'Cápsulas x10', qty:'a confirmar con depósito', ok:false} ]},
+    msgs:[
+      {q:'ellos', txt:'Para la isla de Café Cruzeiro del jueves, ¿cuántas cajas me traen? Así les libero el espacio.', at:antes(600)},
+      {q:'nos', txt:'Lo consulto con depósito y te confirmo mañana temprano.', at:antes(540)},
+    ]},
+  { id:'h7', canal:'plataforma', cat:'interno', estado:'resuelto', prio:'normal',
+    de:{n:'Silvina Acuña', rol:'Repositora · Güemes y Los Troncos', ini:'SA'},
+    store:_S('Riadigos Alvarado'), cli:null, asignado:'Vos', sla:null,
+    asunto:'Faltaba la foto de cartelería en Riadigos Alvarado',
+    msgs:[
+      {q:'ellos', txt:'Ya subí la foto de cartelería de Riadigos Alvarado que faltaba en el reporte de ayer.', at:antes(200)},
+      {q:'nos', txt:'Perfecto, la sumo al informe. Gracias.', at:antes(180)},
+    ]},
+  { id:'h8', canal:'email', cat:'respuesta', estado:'resuelto', prio:'normal',
+    de:{n:'Diego Ayala', rol:'Compras · Jugos Puro Sol', ini:'DA'},
+    store:null, cli:_C('Jugos Puro Sol'), asignado:'Vos', sla:null,
+    asunto:'Recibido el informe semanal',
+    msgs:[
+      {q:'ellos', txt:'Recibimos el informe, todo claro. Gracias por el detalle de los quiebres.', at:antes(2600)},
+      {q:'nos', txt:'Genial, cualquier cosa quedamos a disposición.', at:antes(2560)},
+    ]},
+  { id:'h9', canal:'whatsapp', cat:'reclamo', estado:'responder', prio:'alta',
+    de:{n:'Hernán Ruiz', rol:'Encargado · Carrefour Córdoba', ini:'HR'},
+    store:_S('Carrefour Córdoba'), cli:_C('Cbse'), asignado:'Vos', sla:4,
+    asunto:'Falta Amanda 1 kg hace 3 días',
+    msgs:[
+      {q:'ellos', txt:'Che, hace 3 días que no tengo Amanda 1 kg de Cbse y el de la otra cuadra lo tiene. Estoy perdiendo venta.', at:antes(70)},
+    ]},
+  { id:'h10', canal:'plataforma', cat:'visita', estado:'esperando', prio:'normal',
+    de:{n:'Sofía Molteni', rol:'Encargada · Disco San Luis', ini:'SM'},
+    store:_S('Disco San Luis'), cli:null, asignado:'Vos', sla:null,
+    asunto:'Cambio de día de visita',
+    msgs:[
+      {q:'ellos', txt:'¿Pueden pasar la visita de los martes a los miércoles? Los martes tenemos inventario y se complica.', at:antes(900)},
+      {q:'nos', txt:'Lo vemos con el repositor de la zona y te confirmamos.', at:antes(840)},
+    ]},
+  { id:'h11', canal:'whatsapp', cat:'armado', estado:'nuevo', prio:'alta',
+    de:{n:'Paula Rendón', rol:'KAM · Cbse', ini:'PR'},
+    store:null, cli:_C('Cbse'), asignado:'Vos', sla:20,
+    asunto:'Activación de yerba — refuerzo de repositores el lunes',
+    armado:{ fecha:'lunes 24 de agosto', lugar:'Tiendas del centro (Carrefour, Vea Luro, Disco San Luis)',
+      items:[ {sku:'AM-05', n:'Amanda 500 g', qty:'exhibición adicional', ok:false},
+              {sku:'AM-10', n:'Amanda 1 kg', qty:'exhibición adicional', ok:false},
+              {sku:'EQ', n:'2 repositores extra por la mañana', qty:'coordinar', ok:false} ]},
+    msgs:[
+      {q:'ellos', txt:'El lunes arranca la activación de yerba. Necesitamos reforzar con 2 repositores extra a la mañana en las tiendas del centro para armar las exhibiciones. ¿Se puede?', at:antes(50)},
+    ]},
+  { id:'h12', canal:'email', cat:'respuesta', estado:'nuevo', prio:'normal',
+    de:{n:'Gustavo Lema', rol:'Trade · Arroz 2 Hermanos', ini:'GL'},
+    store:null, cli:_C('Arroz 2 hermanos'), asignado:'Vos', sla:24,
+    asunto:'¿Suman relevamiento de la marca blanca?',
+    msgs:[
+      {q:'ellos', txt:'¿Podrían incluir en el relevamiento de precios el arroz marca blanca de la competencia en las tiendas donde estamos? Nos sirve para la próxima negociación.', at:antes(120)},
+    ]},
+];
+const inbAbiertas = ()=>BANDEJA.filter(h=>h.estado==='nuevo'||h.estado==='responder');
+const inbVencen = ()=>BANDEJA.filter(h=>h.sla!=null && h.sla<=8 && h.estado!=='resuelto');
+
 /* cobertura nacional del servicio */
 const PROVS = [
   ['Centro y Cuyo', [['Buenos Aires',128,'BA'],['Ciudad de Buenos Aires',64],['Córdoba',41],['Santa Fe',33],['Entre Ríos',11],['Mendoza',21],['San Juan',4],['San Luis',3],['La Pampa',2]]],
@@ -278,6 +417,7 @@ const planoTienda = (s,w,h,sh)=>planograma(s.marcas[0],w,h,sh);
 /* ==================== NAVEGACIÓN ==================== */
 const NAV = [
   {k:'resumen',   t:'Resumen del servicio', i:'📊'},
+  {k:'inbox',     t:'Inbox operativo',      i:'📨', b:inbAbiertas().length},
   {k:'clientes',  t:'Clientes',             i:'🤝', b:clientes.length},
   {k:'tiendas',   t:'Tiendas atendidas',    i:'🏪', b:data.length},
   {k:'reportes',  t:'Reportes de campo',    i:'📋', b:feed.length},
@@ -293,11 +433,15 @@ $('#nav1').innerHTML = NAV.map(n=>`<button class="tnode" data-page="${n.k}">
 $('#favs').innerHTML = clientes.slice(0,3).map(c=>`<button class="tnode" data-cli="${c.slug}">
   <span class="ti">${c.e}</span><span class="tt hide-slim">${esc(c.n)}</span>
   <span class="bdg hide-slim">${c.filas.length}</span></button>`).join('');
+$('#inbKbd').textContent = inbAbiertas().length;
 
 document.addEventListener('click',e=>{
   const p=e.target.closest('[data-page]'); if(p) return render(p.dataset.page);
   const s=e.target.closest('[data-store]'); if(s) return openTienda(s.dataset.store);
   const c=e.target.closest('[data-cli]'); if(c) return openCliente(c.dataset.cli);
+  const hl=e.target.closest('[data-hilo]'); if(hl) return openHilo(hl.dataset.hilo);
+  const fc=e.target.closest('[data-fcanal]'); if(fc){ inbCanal=fc.dataset.fcanal; return drawInbox(); }
+  const fk=e.target.closest('[data-fcat]'); if(fk){ inbCat=fk.dataset.fcat; return drawInbox(); }
   const t=e.target.closest('[data-toast]'); if(t) return toast(t.dataset.toast);
   if(e.target.id==='cfgApply'){
     let v=$('#cfgPath').value.trim(); if(v&&!v.endsWith('/')) v+='/';
@@ -329,6 +473,7 @@ const CMDS = [
   ...NAV.map(n=>({i:n.i,t:n.t,m:'Página',go:()=>render(n.k)})),
   ...clientes.map(c=>({i:c.e,t:c.n,m:'Cliente',go:()=>openCliente(c.slug)})),
   ...data.map(s=>({i:s.ic,t:s.n,m:s.cad,go:()=>openTienda(s.id)})),
+  ...BANDEJA.map(h=>({i:CANALES[h.canal].i,t:h.asunto,m:'Inbox · '+(h.cli?h.cli.n:h.store?h.store.n:'interno'),go:()=>openHilo(h.id)})),
   {i:'📁',t:'Vincular fotos del disco',m:'Acción',go:()=>{render('fotos');setTimeout(pedirVarias,250)}},
   {i:'⟨⟩',t:'Contraer barra lateral',m:'Acción',go:()=>$('#btnSlim').click()},
 ];
@@ -357,15 +502,19 @@ document.addEventListener('keydown',e=>{
 $('#pal').addEventListener('click',e=>{ if(e.target.id==='pal') closePal(); });
 
 /* ==================== RENDER ==================== */
-let PAGE='resumen', vista='tabla';
+let PAGE='resumen', vista='tabla', inbCanal='todos', inbCat='todas';
 function render(p){
+  if(!PAGES[p]) p='resumen';
   PAGE=p;
+  if(location.hash!=='#'+p) history.replaceState(null,'','#'+p);
   document.querySelectorAll('[data-page]').forEach(n=>n.classList.toggle('on',n.dataset.page===p));
   const meta=NAV.find(n=>n.k===p);
   $('#crumbNow').textContent=meta.i+' '+meta.t;
   $('#page').innerHTML=PAGES[p]();
   $('#page').classList.remove('fadein'); void $('#page').offsetWidth; $('#page').classList.add('fadein');
   $('#scroll').scrollTop=0; post($('#page'));
+  if(p==='tiendas'){ drawDB(); moverInd(); }
+  if(p==='inbox'){ drawInbox(); }
 }
 function post(el){
   requestAnimationFrame(()=>{
@@ -387,7 +536,6 @@ function post(el){
     el.querySelectorAll('[data-tab]').forEach(x=>x.setAttribute('aria-selected',x.dataset.tab===vista));
     moverInd(); drawDB();
   }));
-  if(PAGE==='tiendas'){ drawDB(); moverInd(); }
 }
 function moverInd(){
   const b=$('[data-tab][aria-selected="true"]'), ind=$('#vind'), head=$('#dbhead'); if(!b||!ind) return;
@@ -677,6 +825,129 @@ ${PROVS.map(([reg,list])=>{
 <div class="callout warn"><span class="ce">🎯</span><div><b>Santa Cruz y Tierra del Fuego</b> siguen sin operación propia. Hay dos cadenas regionales identificadas para la próxima ronda comercial.</div></div>
 <div class="callout"><span class="ce">📈</span><div>Catamarca, La Rioja y Formosa tienen un solo punto cada una: son las plazas donde una marca nueva permitiría abrir ruta con poco costo fijo.</div></div>`;
 
+/* ---------- INBOX OPERATIVO ---------- */
+function hiloRow(h){
+  const ca=CANALES[h.canal];
+  const vinc = h.cli?`<span class="pill ${h.cli.col}">${h.cli.e} ${esc(h.cli.n)}</span>`
+    : h.store?`<span class="pill ghost">${h.store.ic} ${esc(h.store.n)}</span>`:'';
+  const last=h.msgs[h.msgs.length-1];
+  const sla=(h.sla!=null && (h.estado==='nuevo'||h.estado==='responder'))
+    ? `<span class="hsla">⏱ ${h.sla<=0?'vencido':'responder en '+h.sla+' h'}</span>` : '';
+  return `<button class="hilo" data-hilo="${h.id}">
+    ${h.estado==='nuevo'?'<span class="hunread"></span>':''}
+    <span class="chan ${ca.c}" title="${ca.t}">${ca.i}</span>
+    <span class="hbody">
+      <span class="hrow1"><b class="hde">${esc(h.de.n)}</b>
+        <span class="pill ${CATS[h.cat].c}">${CATS[h.cat].t}</span>${vinc}
+        <span class="hwhen">${relrel(last.at)}</span></span>
+      <span class="hsub">${esc(h.asunto)}</span>
+      <span class="hprev">${last.q==='nos'?'Vos: ':''}${esc(last.txt)}</span>
+      <span class="hrow3"><span class="pill ${HEST[h.estado].c}">${HEST[h.estado].t}</span>${sla}
+        <span>${esc(h.de.rol)}</span></span>
+    </span>
+  </button>`;
+}
+PAGES.inbox = ()=>{
+  const ab=inbAbiertas(), ven=inbVencen();
+  return `
+<div class="picon">📨</div>
+<h1 class="title">Inbox <span class="accent">operativo</span></h1>
+<p class="lead">Todos los mensajes de clientes y del equipo en un solo lugar — WhatsApp, correo y plataforma — para que ninguna respuesta ni ningún armado quede sin seguimiento.</p>
+<div class="kpis">
+  <div class="kpi"><div class="k">Sin responder</div><div class="v ${ab.length?'neg':''}"><span data-to="${ab.length}">0</span></div><div class="m">${BANDEJA.filter(h=>h.estado==='nuevo').length} sin abrir</div></div>
+  <div class="kpi"><div class="k">Vencen hoy</div><div class="v ${ven.length?'neg':''}">${ven.length}</div><div class="m">dentro de la jornada</div></div>
+  <div class="kpi"><div class="k">Esperando al cliente</div><div class="v">${BANDEJA.filter(h=>h.estado==='esperando').length}</div><div class="m">con respuesta enviada</div></div>
+  <div class="kpi"><div class="k">Resueltas hoy</div><div class="v pos">${BANDEJA.filter(h=>h.estado==='resuelto').length}</div><div class="m">tiempo medio 1 h 40 min</div></div>
+</div>
+${ab.some(h=>h.cat==='reclamo')?`<div class="callout red"><span class="ce">🔴</span><div><b>${ab.filter(h=>h.cat==='reclamo').length} reclamos de tienda abiertos.</b> Son los que más rápido escalan a la marca — conviene resolverlos primero.</div></div>`:''}
+${BANDEJA.some(h=>h.cat==='armado'&&h.estado!=='resuelto')?`<div class="callout brand"><span class="ce">📦</span><div><b>${BANDEJA.filter(h=>h.cat==='armado'&&h.estado!=='resuelto').length} armados en curso.</b> Cada uno necesita confirmar cantidades, material POP y repositor antes de la fecha.</div></div>`:''}
+<div id="inbFilters"></div>
+<div id="inbList"></div>`;
+};
+function drawInbox(){
+  const fb=$('#inbFilters'), el=$('#inbList'); if(!el) return;
+  const chip=(k,l,cur,attr)=>`<button class="fchip ${cur===k?'on':''}" data-${attr}="${k}">${l}</button>`;
+  fb.innerHTML=`<div class="inbf">
+    ${chip('todos','Todos los canales',inbCanal,'fcanal')}${Object.entries(CANALES).map(([k,v])=>chip(k,v.i+' '+v.t,inbCanal,'fcanal')).join('')}
+  </div>
+  <div class="inbf">
+    ${chip('todas','Todas las categorías',inbCat,'fcat')}${Object.entries(CATS).map(([k,v])=>chip(k,v.t,inbCat,'fcat')).join('')}
+  </div>`;
+  const list=BANDEJA.filter(h=>(inbCanal==='todos'||h.canal===inbCanal)&&(inbCat==='todas'||h.cat===inbCat));
+  const ord={alta:0,normal:1};
+  const g=(t,arr)=>arr.length?`<div class="regh">${t}<span class="n">${arr.length}</span></div>${arr.map(hiloRow).join('')}`:'';
+  const ab=list.filter(h=>h.estado==='nuevo'||h.estado==='responder').sort((a,b)=>(ord[a.prio]-ord[b.prio])||((a.sla??99)-(b.sla??99)));
+  const esp=list.filter(h=>h.estado==='esperando');
+  const res=list.filter(h=>h.estado==='resuelto');
+  el.innerHTML=(g('Requieren tu respuesta',ab)+g('Esperando al cliente',esp)+g('Resueltas',res))
+    || '<p class="p" style="color:var(--light);padding:20px 0">No hay conversaciones con este filtro.</p>';
+}
+function openHilo(id){
+  const h=BANDEJA.find(x=>x.id===id); if(!h) return;
+  const ca=CANALES[h.canal];
+  if(h.estado==='nuevo') h.estado='responder';
+  const vinc = h.cli?`<span class="pill ${h.cli.col}" data-cli="${h.cli.slug}">${h.cli.e} ${esc(h.cli.n)}</span>`
+    : h.store?`<span class="pill ghost" data-store="${h.store.id}">${h.store.ic} ${esc(h.store.n)}</span>`:'—';
+  const qr=QR[h.cat]||QR.interno;
+  $('#peekBody').innerHTML=`
+    <div class="picon">${ca.i}</div><h1>${esc(h.asunto)}</h1>
+    <div class="props">
+      <div class="prow"><span class="pkey">💬 Canal</span><span class="pval"><span class="pill ${ca.c}">${ca.i} ${ca.t}</span></span></div>
+      <div class="prow"><span class="pkey">👤 De</span><span class="pval"><span class="person"><span class="av">${h.de.ini}</span>${esc(h.de.n)}</span> · ${esc(h.de.rol)}</span></div>
+      <div class="prow"><span class="pkey">◉ Categoría</span><span class="pval"><span class="pill ${CATS[h.cat].c}">${CATS[h.cat].t}</span></span></div>
+      <div class="prow"><span class="pkey">🔗 Vínculo</span><span class="pval">${vinc}</span></div>
+      <div class="prow"><span class="pkey">🧑‍💼 Asignado a</span><span class="pval"><span class="person"><span class="av g">VS</span>${esc(h.asignado)}</span></span></div>
+      <div class="prow"><span class="pkey">◉ Estado</span><span class="pval"><span class="pill ${HEST[h.estado].c}">${HEST[h.estado].t}</span></span></div>
+      ${h.sla!=null?`<div class="prow"><span class="pkey">⏱ SLA de respuesta</span><span class="pval ${h.sla<=4?'neg':''}">${h.sla<=0?'Vencido':'Responder dentro de '+h.sla+' h'}</span></div>`:''}
+    </div>
+    ${h.cat==='reclamo'?`<div class="callout red"><span class="ce">🔴</span><div>Reclamo de tienda. Si no se resuelve en el día, el encargado suele escalarlo directo a la marca.</div></div>`:''}
+    ${h.armado?`<h3 class="h3">📦 Checklist de armado</h3>
+    <div class="armchk">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:6px">${esc(h.armado.lugar)} · ${esc(h.armado.fecha)}</div>
+      ${h.armado.items.map(it=>`<div class="ai"><span class="ck ${it.ok?'on':'off'}">${it.ok?'✓':''}</span>
+        <span style="flex:1">${esc(it.n)}${it.sku&&it.sku.length<=6?` <span style="color:var(--light);font-size:12px">${esc(it.sku)}</span>`:''}</span>
+        <span style="color:var(--muted);font-size:12.5px">${esc(it.qty)}</span></div>`).join('')}
+      <div class="cbar">
+        <button class="qr" data-toast="Se enviaría el pedido a depósito">Pedir a depósito</button>
+        <button class="qr" data-toast="Se asignaría repositor y fecha">Asignar repositor</button>
+        <button class="qr" data-toast="Se generaría la orden de armado">Generar orden</button>
+      </div>
+    </div>`:''}
+    <h3 class="h3">💬 Conversación</h3>
+    <div class="conv" id="hiloConv">${h.msgs.map(m=>`<div class="msg ${m.q==='nos'?'nos':'ellos'}">
+      <div class="mh">${m.q==='nos'?'Vos':esc(h.de.n)} · ${relhora(m.at)}</div>${esc(m.txt)}</div>`).join('')}</div>
+    <div class="composer">
+      <textarea id="hiloTa" placeholder="Escribí la respuesta para ${ca.t}…"></textarea>
+      <div class="cbar">
+        ${qr.map(t=>`<button class="qr" data-qr="${esc(t)}">${esc(t)}</button>`).join('')}
+        <button class="csend" id="hiloSend">Enviar por ${ca.t}</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+      <button class="btng" data-hres>✓ Marcar resuelto</button>
+      <button class="btng" data-hrep>＋ Crear reporte de campo</button>
+      <button class="btng" data-toast="Se reasignaría la conversación">Reasignar</button>
+    </div>`;
+  const body=$('#peekBody'), ta=body.querySelector('#hiloTa');
+  body.querySelectorAll('[data-qr]').forEach(b=>b.addEventListener('click',()=>{ ta.value=b.dataset.qr; ta.focus(); }));
+  body.querySelector('#hiloSend').addEventListener('click',()=>{
+    const v=ta.value.trim(); if(!v) return toast('Escribí una respuesta');
+    body.querySelector('#hiloConv').insertAdjacentHTML('beforeend',
+      `<div class="msg nos"><div class="mh">Vos · ahora</div>${esc(v)}</div>`);
+    ta.value=''; h.estado='esperando'; toast('Respuesta enviada por '+ca.t);
+    body.querySelector('#hiloConv').lastElementChild.scrollIntoView({block:'nearest'});
+    $('#inbKbd').textContent=inbAbiertas().length;
+  });
+  body.querySelectorAll('[data-hres]').forEach(b=>b.addEventListener('click',()=>{
+    h.estado='resuelto'; toast('Conversación marcada como resuelta');
+    $('#inbKbd').textContent=inbAbiertas().length; closePeek(); if(PAGE==='inbox') render('inbox');
+  }));
+  body.querySelectorAll('[data-hrep]').forEach(b=>b.addEventListener('click',()=>toast('Se abriría un reporte con el contexto de esta conversación')));
+  abrirPeek();
+  $('#inbKbd').textContent=inbAbiertas().length;
+  if(PAGE==='inbox') drawInbox();
+}
+
 /* ==================== PANELES ==================== */
 function openTienda(id){
   const s=data.find(x=>x.id===id); if(!s) return;
@@ -764,7 +1035,8 @@ $('#scrim').addEventListener('click',closePeek);
 $('#lbClose').addEventListener('click',()=>$('#lb').classList.remove('on'));
 $('#lb').addEventListener('click',e=>{ if(e.target.id==='lb') $('#lb').classList.remove('on'); });
 
-render('resumen');
+window.addEventListener('hashchange',()=>{ const p=location.hash.slice(1); if(PAGES[p]&&p!==PAGE) render(p); });
+render(location.hash.slice(1)||'resumen');
 </script>
 </body>
 </html>
