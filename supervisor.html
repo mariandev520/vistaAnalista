@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Panel comercial — Servicio de reposición</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+/* --- extras propios del panel comercial --- */
+.kanban{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(210px,1fr);gap:12px;
+  padding:16px 0 6px;overflow-x:auto}
+.stagerow > *{animation:fadeUp .34s var(--ease) both}
+.tl{position:relative;margin:14px 0 4px;padding-left:20px}
+.tl::before{content:"";position:absolute;left:5px;top:4px;bottom:4px;width:2px;background:var(--border)}
+.tlrow{position:relative;display:flex;gap:12px;align-items:flex-start;padding:9px 0}
+.tlrow::before{content:"";position:absolute;left:-18px;top:15px;width:9px;height:9px;border-radius:50%;
+  background:#fff;box-shadow:inset 0 0 0 2px var(--brand)}
+.tlrow.risk::before{box-shadow:inset 0 0 0 2px var(--t-red)}
+.tlrow .dwrap{flex:0 0 92px;font-size:12.5px;color:var(--muted);padding-top:1px}
+.tlrow .card{flex:1;border:1px solid var(--border);border-radius:9px;padding:11px 13px;background:#fff;
+  transition:border-color .18s,box-shadow .18s,transform .18s var(--ease)}
+.tlrow .card:hover{border-color:var(--brand-line);box-shadow:0 5px 16px rgba(46,50,47,.07);transform:translateY(-1px)}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.dot.ok{background:var(--brand)} .dot.warn{background:#C89A3C} .dot.crit{background:var(--t-red)}
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="sidebar" id="sidebar">
+    <div class="sbody">
+      <div class="wswrap">
+        <button class="ws" id="wsBtn" aria-haspopup="true" aria-expanded="false"><span class="av">MF</span>
+          <span class="nm hide-slim">Supervisor comercial<small>Marcos Ferreyra · Dirección</small></span>
+          <span class="cv hide-slim">⌄</span></button>
+        <div class="wsmenu" id="wsMenu" hidden>
+          <div class="wslabel">Cambiar de vista</div>
+          <a class="wsopt" href="index.html"><span class="i">🗂️</span><span>Analista de cuenta<small>Cartera de Mar del Plata</small></span></a>
+          <a class="wsopt on" href="supervisor.html"><span class="i">📈</span><span>Supervisor comercial<small>Panel de Marcos Ferreyra</small></span></a>
+        </div>
+      </div>
+      <div class="snav">
+        <button class="sitem" id="btnPal"><span class="ic">🔍</span><span class="hide-slim">Buscar</span><span class="kbd hide-slim">⌘K</span></button>
+        <button class="sitem" data-toast="Se abriría el historial"><span class="ic">🕘</span><span class="hide-slim">Recientes</span></button>
+        <button class="sitem" data-toast="2 propuestas por aprobar"><span class="ic">📥</span><span class="hide-slim">Aprobaciones</span><span class="kbd hide-slim">2</span></button>
+      </div>
+      <button class="gsec" data-group="g1"><span class="cv">▾</span><span class="hide-slim">Vista comercial</span><span class="plus hide-slim">＋</span></button>
+      <div class="group" id="g1"><div class="tree" id="nav1"></div></div>
+      <button class="gsec" data-group="g2"><span class="cv">▾</span><span class="hide-slim">Plazas</span><span class="plus hide-slim">＋</span></button>
+      <div class="group" id="g2"><div class="tree" id="navp"></div></div>
+    </div>
+    <div class="sfoot">
+      <button class="sitem" id="btnSlim"><span class="ic">⟨⟩</span><span class="hide-slim">Contraer barra</span></button>
+      <button class="sitem" data-toast="Papelera vacía"><span class="ic">🗑️</span><span class="hide-slim">Papelera</span></button>
+    </div>
+  </nav>
+
+  <div class="main">
+    <div class="topbar">
+      <button class="tbtn menu" id="menuBtn">☰</button>
+      <div class="crumb"><button class="cb">📈 Panel comercial</button><span>/</span><button class="cb"><b id="crumbNow"></b></button></div>
+      <div class="tools">
+        <button class="tbtn" data-toast="Se generaría el board del mes">Cierre mensual</button>
+        <button class="tbtn" data-toast="Se generaría el PDF para dirección">Exportar</button>
+        <button class="tbtn" data-toast="Enlace copiado">Compartir</button>
+        <button class="tbtn" data-toast="Más opciones">···</button>
+      </div>
+    </div>
+    <div class="scroll" id="scroll">
+      <div class="cover"><span class="g"></span><span class="grid"></span><span class="edge"></span></div>
+      <div class="page" id="page"></div>
+    </div>
+  </div>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="peek" id="peek" aria-hidden="true">
+  <div class="pk-top"><button class="tbtn" id="peekClose">✕</button>
+    <button class="tbtn" data-toast="Se abriría como página completa">↗ Abrir como página</button>
+    <div style="margin-left:auto;display:flex;gap:2px"><button class="tbtn" data-toast="Enlace copiado">Compartir</button><button class="tbtn">💬</button><button class="tbtn">···</button></div>
+  </div>
+  <div class="pk-body" id="peekBody"></div>
+</aside>
+<div class="pal" id="pal"><div class="palbox">
+  <input id="palInput" placeholder="Buscar páginas, marcas, oportunidades o plazas…" autocomplete="off">
+  <div class="palist" id="palist"></div>
+  <div class="palfoot"><span>↑↓ moverse</span><span>↵ abrir</span><span>esc cerrar</span></div>
+</div></div>
+<div class="toast" id="toast"><span class="d"></span><span id="toastTxt"></span></div>
+
+<script>
+/* ==================== DATOS ==================== */
+const HOY = new Date(2026,7,31);
+const MES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const MESL = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const fLarga = d=>`${d.getDate()} de ${MESL[d.getMonth()]} de ${d.getFullYear()}`;
+const fCorta = d=>`${String(d.getDate()).padStart(2,'0')} ${MES[d.getMonth()]} ${String(d.getFullYear()).slice(2)}`;
+const money = v=>'$ '+Math.round(v).toLocaleString('es-AR');
+const moneyM = v=>'$ '+(v/1e6).toLocaleString('es-AR',{minimumFractionDigits:1,maximumFractionDigits:2})+' M';
+const esc = s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const $ = q=>document.querySelector(q);
+const slug = s=>s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+const dias = d=>Math.round((d-HOY)/86400000);
+
+const PLAZAS = [
+  {k:'MDP', n:'Mar del Plata', est:'activa',    tiendas:15, repos:4, analistas:2, capac:0.86, desde:new Date(2024,2,1)},
+  {k:'LP',  n:'La Plata',      est:'activa',    tiendas:12, repos:3, analistas:1, capac:0.71, desde:new Date(2024,9,1)},
+  {k:'BB',  n:'Bahía Blanca',  est:'activa',    tiendas:8,  repos:2, analistas:1, capac:0.63, desde:new Date(2025,1,1)},
+  {k:'MZA', n:'Mendoza',       est:'piloto',    tiendas:5,  repos:2, analistas:1, capac:0.42, desde:new Date(2026,5,1)},
+  {k:'ROS', n:'Rosario',       est:'prospecto', tiendas:0,  repos:0, analistas:0, capac:0,    desde:null},
+];
+const PLAZA = k=>PLAZAS.find(p=>p.k===k);
+const PL_EST = {activa:{t:'Activa',c:'green'}, piloto:{t:'Piloto',c:'yellow'}, prospecto:{t:'Prospecto',c:'gray'}};
+
+const MARCAS = [
+  {n:'Fecovita',          e:'🍷', col:'red',    cat:'Bodega',     plan:'Full',     mrr:1850000, alta:new Date(2024,2,1),  renueva:new Date(2027,2,1),  plazas:['MDP','LP'],       analista:'Vos',            nps:9, sla:0.97, informe:'al-dia'},
+  {n:'Cbse',              e:'🧉', col:'green',  cat:'Yerba mate', plan:'Full',     mrr:1620000, alta:new Date(2024,5,15), renueva:new Date(2026,8,15), plazas:['MDP','BB','LP'],  analista:'Vos',            nps:8, sla:0.93, informe:'al-dia'},
+  {n:'Zuccardi',          e:'🫒', col:'yellow', cat:'Almacén',    plan:'Estándar', mrr:940000,  alta:new Date(2025,0,10), renueva:new Date(2026,9,10), plazas:['MDP'],            analista:'Paula Giménez', nps:6, sla:0.82, informe:'atrasado'},
+  {n:'Arroz 2 Hermanos',  e:'🍚', col:'gray',   cat:'Almacén',    plan:'Estándar', mrr:780000,  alta:new Date(2025,1,1),  renueva:new Date(2027,1,1),  plazas:['MDP','BB'],       analista:'Paula Giménez', nps:7, sla:0.90, informe:'al-dia'},
+  {n:'Jugos Puro Sol',    e:'🧃', col:'orange', cat:'Bebidas',    plan:'Básico',   mrr:420000,  alta:new Date(2025,4,1),  renueva:new Date(2026,10,1), plazas:['MDP'],            analista:'Nicolás Ruiz',  nps:5, sla:0.78, informe:'atrasado'},
+  {n:'Café Cruzeiro',     e:'☕', col:'brown',  cat:'Desayuno',   plan:'Estándar', mrr:860000,  alta:new Date(2024,8,20), renueva:new Date(2026,8,20), plazas:['MDP','LP'],       analista:'Nicolás Ruiz',  nps:4, sla:0.71, informe:'atrasado'},
+];
+const salud = m=> (m.sla>=0.9 && m.nps>=7) ? 'ok' : (m.sla>=0.8 && m.nps>=5) ? 'warn' : 'crit';
+const SALUD = {ok:{t:'Saludable',c:'green'}, warn:{t:'A vigilar',c:'yellow'}, crit:{t:'En riesgo',c:'red'}};
+MARCAS.forEach(m=>{ m.slug=slug(m.n); m.salud=salud(m); m.arr=m.mrr*12; m.diasRenov=dias(m.renueva); });
+
+const PIPE = [
+  {marca:'Molinos',        e:'🌾', tipo:'Marca nueva',           det:'Plan Full · 3 plazas',            valor:2400000, etapa:'Propuesta',        prob:0.50, cierre:new Date(2026,9,15),  owner:'Marcos Ferreyra'},
+  {marca:'La Serenísima',  e:'🥛', tipo:'Upgrade de plan',        det:'Estándar → Full · Mar del Plata', valor:900000,  etapa:'Negociación',      prob:0.70, cierre:new Date(2026,8,30),  owner:'Vos'},
+  {marca:'Zuccardi',       e:'🫒', tipo:'Extensión de plaza',     det:'Suma Bahía Blanca',               valor:520000,  etapa:'Propuesta',        prob:0.45, cierre:new Date(2026,9,20),  owner:'Paula Giménez'},
+  {marca:'Arcor',          e:'🍬', tipo:'Marca nueva',            det:'Full nacional · 6 plazas',         valor:5200000, etapa:'Contacto inicial', prob:0.20, cierre:new Date(2027,0,31),  owner:'Marcos Ferreyra'},
+  {marca:'Café Cruzeiro',  e:'☕', tipo:'Renovación en riesgo',   det:'Retención con ajuste de precio',   valor:860000,  etapa:'Negociación',      prob:0.55, cierre:new Date(2026,8,20),  owner:'Nicolás Ruiz'},
+  {marca:'BGH Alimentos',  e:'🧊', tipo:'Marca nueva',            det:'Plan Básico · Mar del Plata',      valor:380000,  etapa:'Calificación',     prob:0.30, cierre:new Date(2026,10,10), owner:'Nicolás Ruiz'},
+];
+const ETAPAS = ['Contacto inicial','Calificación','Propuesta','Negociación','Cierre'];
+PIPE.forEach((o,i)=>{ o.id='o'+i; o.pond=o.valor*o.prob; });
+
+const EQUIPO = [
+  {n:'Marcos Ferreyra', ini:'MF', rol:'Responsable comercial',       marcas:[],                              foco:'Dirección comercial y pipeline'},
+  {n:'Vos',             ini:'VS', rol:'Analista de cuenta senior',   marcas:['Fecovita','Cbse'],             foco:'Cuentas Full'},
+  {n:'Paula Giménez',   ini:'PG', rol:'Analista de cuenta',          marcas:['Zuccardi','Arroz 2 Hermanos'], foco:'Rubro almacén'},
+  {n:'Nicolás Ruiz',    ini:'NR', rol:'Analista de cuenta',          marcas:['Jugos Puro Sol','Café Cruzeiro'], foco:'Bebidas y desayuno · cuentas en riesgo'},
+];
+EQUIPO.forEach(e=>{
+  const ms = MARCAS.filter(m=>e.marcas.includes(m.n));
+  e.cartMrr = ms.reduce((a,m)=>a+m.mrr,0);
+  e.nps = ms.length ? +(ms.reduce((a,m)=>a+m.nps,0)/ms.length).toFixed(1) : null;
+  e.riesgo = ms.filter(m=>m.salud==='crit').length;
+  e.pipe = PIPE.filter(o=>o.owner===e.n);
+});
+
+/* SLA: compromiso mensual por plan (visitas · reportes · fotos, agregado de la cuenta) */
+const COMPROMISO = {Full:{v:36,r:36,f:108}, Estándar:{v:16,r:16,f:16}, Básico:{v:4,r:4,f:8}};
+
+/* ==================== AGREGADOS ==================== */
+const mrrTotal = MARCAS.reduce((a,m)=>a+m.mrr,0);
+const arrTotal = mrrTotal*12;
+const npsCartera = +(MARCAS.reduce((a,m)=>a+m.nps,0)/MARCAS.length).toFixed(1);
+const slaCartera = MARCAS.reduce((a,m)=>a+m.mrr*m.sla,0)/mrrTotal;
+const enRiesgo = MARCAS.filter(m=>m.salud==='crit');
+const aVigilar = MARCAS.filter(m=>m.salud==='warn');
+const pipeTotal = PIPE.reduce((a,o)=>a+o.valor,0);
+const pipePond = PIPE.reduce((a,o)=>a+o.pond,0);
+const informesAtrasados = MARCAS.filter(m=>m.informe==='atrasado');
+const renovProx = [...MARCAS].sort((a,b)=>a.renueva-b.renueva).filter(m=>m.diasRenov<=90 && m.diasRenov>=0);
+const plazasActivas = PLAZAS.filter(p=>p.est==='activa');
+const ingresoPlan = ['Full','Estándar','Básico'].map(p=>({p, v:MARCAS.filter(m=>m.plan===p).reduce((a,m)=>a+m.mrr,0), n:MARCAS.filter(m=>m.plan===p).length}));
+const retencionLogo = 0.92, retencionIngresos = 1.08;
+
+/* ==================== HELPERS UI ==================== */
+let toastT;
+function toast(t){ $('#toastTxt').textContent=t; $('#toast').classList.add('on');
+  clearTimeout(toastT); toastT=setTimeout(()=>$('#toast').classList.remove('on'),2200); }
+
+const pill = (c,t)=>`<span class="pill ${c}">${esc(t)}</span>`;
+const planPill = p=>`<span class="pill ${p==='Full'?'brand':'ghost'}">${p}</span>`;
+const npsPill = n=>`<span class="pill ${n>=7?'green':n>=5?'yellow':'red'}">NPS ${n}</span>`;
+const bar = (pct,mine)=>`<span class="bt"><span class="bf ${mine?'mine':''}" data-w="${Math.round(pct)}"></span></span>`;
+
+/* ==================== NAVEGACIÓN ==================== */
+const NAV = [
+  {k:'resumen',       t:'Panorama comercial',    i:'📈'},
+  {k:'cartera',       t:'Cartera de marcas',     i:'🤝', b:MARCAS.length},
+  {k:'pipeline',      t:'Pipeline comercial',    i:'🎯', b:PIPE.length},
+  {k:'renovaciones',  t:'Renovaciones',          i:'🔁', b:renovProx.length},
+  {k:'sla',           t:'Cumplimiento de SLA',   i:'✅'},
+  {k:'plazas',        t:'Plazas y capacidad',    i:'🗺️', b:plazasActivas.length},
+  {k:'equipo',        t:'Equipo comercial',      i:'👥', b:EQUIPO.length},
+];
+$('#nav1').innerHTML = NAV.map(n=>`<button class="tnode" data-page="${n.k}">
+  <span class="ti">${n.i}</span><span class="tt hide-slim">${n.t}</span>
+  ${n.b?`<span class="bdg hide-slim">${n.b}</span>`:''}<span class="plus hide-slim">＋</span></button>`).join('');
+$('#navp').innerHTML = PLAZAS.map(p=>`<button class="tnode" data-plaza="${p.k}">
+  <span class="ti">${p.est==='prospecto'?'○':'●'}</span><span class="tt hide-slim">${esc(p.n)}</span>
+  <span class="bdg hide-slim">${p.tiendas||'—'}</span></button>`).join('');
+
+document.addEventListener('click',e=>{
+  const p=e.target.closest('[data-page]'); if(p) return render(p.dataset.page);
+  const m=e.target.closest('[data-marca]'); if(m) return openMarca(m.dataset.marca);
+  const o=e.target.closest('[data-op]'); if(o) return openOportunidad(o.dataset.op);
+  const z=e.target.closest('[data-plaza]'); if(z) return openPlaza(z.dataset.plaza);
+  const t=e.target.closest('[data-toast]'); if(t) return toast(t.dataset.toast);
+});
+document.querySelectorAll('.gsec').forEach(g=>g.addEventListener('click',()=>{
+  const box=$('#'+g.dataset.group), closed=g.classList.toggle('closed');
+  if(closed){ box.style.height=box.scrollHeight+'px'; requestAnimationFrame(()=>box.style.height='0px'); }
+  else { box.style.height=box.scrollHeight+'px'; setTimeout(()=>box.style.height='auto',230); }
+}));
+$('#btnSlim').addEventListener('click',()=>{ const sb=$('#sidebar'); sb.classList.toggle('slim');
+  toast(sb.classList.contains('slim')?'Barra contraída':'Barra expandida'); });
+$('#menuBtn').addEventListener('click',()=>$('#sidebar').classList.toggle('open'));
+(()=>{ const b=$('#wsBtn'), mn=$('#wsMenu'); if(!b||!mn) return;
+  const close=()=>{ mn.hidden=true; b.setAttribute('aria-expanded','false'); };
+  b.addEventListener('click',e=>{ e.stopPropagation(); const o=mn.hidden; mn.hidden=!o; b.setAttribute('aria-expanded',String(o)); });
+  document.addEventListener('click',e=>{ if(!mn.hidden && !mn.contains(e.target)) close(); });
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape') close(); }); })();
+
+/* paleta de comandos */
+const CMDS = [
+  ...NAV.map(n=>({i:n.i,t:n.t,m:'Página',go:()=>render(n.k)})),
+  ...MARCAS.map(c=>({i:c.e,t:c.n,m:'Marca',go:()=>openMarca(c.slug)})),
+  ...PIPE.map(o=>({i:o.e,t:o.marca+' — '+o.tipo,m:'Oportunidad',go:()=>openOportunidad(o.id)})),
+  ...PLAZAS.map(p=>({i:'📍',t:p.n,m:'Plaza',go:()=>openPlaza(p.k)})),
+  {i:'⟨⟩',t:'Contraer barra lateral',m:'Acción',go:()=>$('#btnSlim').click()},
+];
+let palSel=0, palRes=CMDS;
+const openPal=()=>{ $('#pal').classList.add('on'); $('#palInput').value=''; palFilter(''); setTimeout(()=>$('#palInput').focus(),40); };
+const closePal=()=>$('#pal').classList.remove('on');
+function palFilter(q){ const n=q.toLowerCase();
+  palRes=CMDS.filter(c=>c.t.toLowerCase().includes(n)||c.m.toLowerCase().includes(n)).slice(0,40); palSel=0; palDraw(); }
+function palDraw(){
+  $('#palist').innerHTML = palRes.map((c,i)=>`<button class="palrow ${i===palSel?'sel':''}" data-i="${i}">
+    <span class="i">${c.i}</span><span>${esc(c.t)}</span><span class="m">${esc(c.m)}</span></button>`).join('')
+    || '<div class="palrow" style="color:var(--light)">Sin resultados</div>';
+  $('#palist').querySelectorAll('[data-i]').forEach(b=>b.addEventListener('click',()=>{closePal();palRes[+b.dataset.i].go()}));
+}
+$('#btnPal').addEventListener('click',openPal);
+$('#palInput').addEventListener('input',e=>palFilter(e.target.value));
+document.addEventListener('keydown',e=>{
+  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){ e.preventDefault(); openPal(); return; }
+  if($('#pal').classList.contains('on')){
+    if(e.key==='Escape') closePal();
+    if(e.key==='ArrowDown'){e.preventDefault();palSel=Math.min(palSel+1,palRes.length-1);palDraw();}
+    if(e.key==='ArrowUp'){e.preventDefault();palSel=Math.max(palSel-1,0);palDraw();}
+    if(e.key==='Enter'&&palRes[palSel]){closePal();palRes[palSel].go();}
+  } else if(e.key==='Escape'){ closePeek(); }
+});
+$('#pal').addEventListener('click',e=>{ if(e.target.id==='pal') closePal(); });
+
+/* ==================== RENDER ==================== */
+let PAGE='resumen';
+function render(p){
+  PAGE=p;
+  document.querySelectorAll('[data-page]').forEach(n=>n.classList.toggle('on',n.dataset.page===p));
+  const meta=NAV.find(n=>n.k===p);
+  $('#crumbNow').textContent=meta.i+' '+meta.t;
+  $('#page').innerHTML=PAGES[p]();
+  $('#page').classList.remove('fadein'); void $('#page').offsetWidth; $('#page').classList.add('fadein');
+  $('#scroll').scrollTop=0; post($('#page'));
+}
+function post(el){
+  requestAnimationFrame(()=>{
+    el.querySelectorAll('[data-w]').forEach(b=>b.style.width=b.dataset.w+'%');
+    el.querySelectorAll('.stagger > *,.stagerow > *').forEach((n,i)=>n.style.animationDelay=Math.min(i*32,320)+'ms');
+    el.querySelectorAll('[data-to]').forEach(n=>{
+      const to=parseFloat(n.dataset.to), dec=+(n.dataset.dec||0), sg=n.dataset.sign==='1', t0=performance.now();
+      (function step(t){const q=Math.min(1,(t-t0)/850),e=1-Math.pow(1-q,3);
+        n.textContent=(sg&&to>=0?'+':'')+(to*e).toFixed(dec); if(q<1) requestAnimationFrame(step);})(t0);
+    });
+  });
+}
+const PAGES={};
+
+/* ---------- PANORAMA COMERCIAL ---------- */
+PAGES.resumen = ()=>`
+<div class="picon">📈</div>
+<h1 class="title">Panorama <span class="accent">comercial</span></h1>
+<p class="lead">Cómo viene el negocio del servicio de reposición: ingreso recurrente, salud de cada cuenta, pipeline y las renovaciones que hay que asegurar este trimestre.</p>
+<div class="props">
+  <div class="prow"><span class="pkey">👤 Responsable comercial</span><span class="pval"><span class="person"><span class="av g">MF</span>Marcos Ferreyra</span></span></div>
+  <div class="prow"><span class="pkey">🗺️ Plazas activas</span><span class="pval">${plazasActivas.map(p=>p.n).join(' · ')} <span class="pill yellow">Mendoza en piloto</span></span></div>
+  <div class="prow"><span class="pkey">🤝 Marcas en cartera</span><span class="pval">${MARCAS.map(m=>`<span class="pill ${m.col}">${m.e} ${m.n}</span>`).join(' ')}</span></div>
+  <div class="prow"><span class="pkey">📅 Período</span><span class="pval">Agosto 2026 · cierre al ${fLarga(HOY)}</span></div>
+</div>
+<div class="kpis">
+  <div class="kpi"><div class="k">Ingreso recurrente (MRR)</div><div class="v">${moneyM(mrrTotal)}</div><div class="m">${moneyM(arrTotal)} anualizado</div></div>
+  <div class="kpi"><div class="k">Retención de ingresos</div><div class="v pos"><span data-to="${retencionIngresos*100}">0</span>%</div><div class="m">logo ${Math.round(retencionLogo*100)}% · últimos 12 meses</div></div>
+  <div class="kpi"><div class="k">NPS de cartera</div><div class="v ${npsCartera>=7?'pos':npsCartera<5?'neg':''}"><span data-to="${npsCartera}" data-dec="1">0</span></div><div class="m">${enRiesgo.length} cuenta${enRiesgo.length===1?'':'s'} en riesgo</div></div>
+  <div class="kpi"><div class="k">SLA de cartera</div><div class="v ${slaCartera>=0.9?'pos':'neg'}"><span data-to="${(slaCartera*100).toFixed(0)}">0</span>%</div><div class="m">ponderado por facturación</div></div>
+</div>
+<div class="kpis">
+  <div class="kpi"><div class="k">Pipeline abierto</div><div class="v">${moneyM(pipeTotal)}</div><div class="m">${PIPE.length} oportunidades</div></div>
+  <div class="kpi"><div class="k">Pipeline ponderado</div><div class="v">${moneyM(pipePond)}</div><div class="m">por probabilidad de cierre</div></div>
+  <div class="kpi"><div class="k">Renovaciones &lt; 90 días</div><div class="v ${renovProx.length?'neg':''}">${renovProx.length}</div><div class="m">${moneyM(renovProx.reduce((a,m)=>a+m.arr,0))} de ARR en juego</div></div>
+  <div class="kpi"><div class="k">Informes atrasados</div><div class="v ${informesAtrasados.length?'neg':''}">${informesAtrasados.length}</div><div class="m">de ${MARCAS.length} marcas</div></div>
+</div>
+<div class="callout red"><span class="ce">🔴</span><div><b>${enRiesgo.length} cuenta${enRiesgo.length===1?'':'s'} en riesgo de baja:</b> ${enRiesgo.map(m=>`${m.n} (SLA ${Math.round(m.sla*100)}%, NPS ${m.nps})`).join(', ')}. ${enRiesgo.some(m=>m.diasRenov<=45)?'Con renovación inminente — priorizar reunión esta semana.':'Armar plan de recuperación antes del informe del viernes.'}</div></div>
+<div class="callout warn"><span class="ce">⚠️</span><div><b>${renovProx.map(m=>m.n).join(' y ')}</b> renuevan contrato en menos de 90 días. Enviar propuesta de renovación con la métrica de servicio del último trimestre.</div></div>
+<div class="callout brand"><span class="ce">🎯</span><div style="flex:1"><b>Pipeline ponderado en ${moneyM(pipePond)}</b> — un ${Math.round(pipePond/mrrTotal*100)}% del MRR actual.<span class="meter" style="max-width:360px"><i data-w="${Math.min(100,Math.round(pipePond/mrrTotal*100))}"></i></span></div></div>
+<h2 class="h">Ingreso por plan</h2>
+<div class="stagger">${ingresoPlan.map(x=>`<div class="prov">
+  <span class="bn">${planPill(x.p)} <span style="color:var(--muted)">${x.n} marcas</span></span>
+  ${bar(x.v/mrrTotal*100, x.p==='Full')}
+  <span class="bv">${moneyM(x.v)}</span><span class="bs">${Math.round(x.v/mrrTotal*100)}%</span></div>`).join('')}</div>
+<h2 class="h">Cartera por analista</h2>
+<div class="stagger">${EQUIPO.filter(e=>e.marcas.length).map(e=>`<button class="ccard" data-toast="Se abriría la ficha de ${esc(e.n)}">
+  <span class="em">${e.ini}</span>
+  <span style="flex:1;min-width:0">
+    <span class="t" style="display:block">${esc(e.n)}</span>
+    <span class="m" style="display:block">${e.marcas.join(' · ')} — NPS ${e.nps}${e.riesgo?` · <span style="color:var(--t-red)">${e.riesgo} en riesgo</span>`:''}</span>
+    <span class="meter" style="max-width:340px"><i data-w="${Math.round(e.cartMrr/mrrTotal*100)}"></i></span>
+  </span>
+  <span class="r"><span class="big">${moneyM(e.cartMrr)}</span><span class="lbl">MRR</span></span>
+</button>`).join('')}</div>
+<h2 class="h">Prioridades de la semana</h2>
+<div class="callout"><span class="ce">1️⃣</span><div>Reunión de retención con <b>${enRiesgo[0]?.n||'—'}</b> antes de la renovación del ${enRiesgo[0]?fLarga(enRiesgo[0].renueva):'—'}.</div></div>
+<div class="callout"><span class="ce">2️⃣</span><div>Cerrar la propuesta de <b>La Serenísima</b> (upgrade a Full) — está en negociación con 70% de probabilidad.</div></div>
+<div class="callout"><span class="ce">3️⃣</span><div>Regularizar los ${informesAtrasados.length} informes atrasados: ${informesAtrasados.map(m=>m.n).join(', ')}.</div></div>`;
+
+/* ---------- CARTERA DE MARCAS ---------- */
+PAGES.cartera = ()=>`
+<div class="picon">🤝</div>
+<h1 class="title">Cartera de marcas</h1>
+<p class="lead">Las ${MARCAS.length} marcas que hoy contratan el servicio, con su valor de contrato, cobertura de plazas, analista responsable y salud de la relación.</p>
+<div class="kpis">
+  <div class="kpi"><div class="k">MRR total</div><div class="v">${moneyM(mrrTotal)}</div><div class="m">ticket promedio ${moneyM(mrrTotal/MARCAS.length)}</div></div>
+  <div class="kpi"><div class="k">Marcas Full</div><div class="v">${MARCAS.filter(m=>m.plan==='Full').length}<span style="font-size:16px;color:var(--muted)">/${MARCAS.length}</span></div><div class="m">${Math.round(ingresoPlan[0].v/mrrTotal*100)}% del ingreso</div></div>
+  <div class="kpi"><div class="k">Saludables</div><div class="v pos">${MARCAS.filter(m=>m.salud==='ok').length}</div><div class="m">${aVigilar.length} a vigilar · ${enRiesgo.length} en riesgo</div></div>
+  <div class="kpi"><div class="k">Antigüedad media</div><div class="v">${(MARCAS.reduce((a,m)=>a+(HOY-m.alta),0)/MARCAS.length/(86400000*30)).toFixed(0)}<span style="font-size:16px;color:var(--muted)"> meses</span></div><div class="m">más antigua: Fecovita</div></div>
+</div>
+<table><thead><tr>
+  <th style="width:22%"><span class="ph">Aa</span>Marca</th><th><span class="ph">◉</span>Plan</th>
+  <th><span class="ph">#</span>MRR</th><th class="opt"><span class="ph">◉</span>Plazas</th>
+  <th><span class="ph">👤</span>Analista</th><th><span class="ph">#</span>SLA</th>
+  <th><span class="ph">◉</span>Salud</th><th class="opt"><span class="ph">📅</span>Renueva</th></tr></thead><tbody>
+${[...MARCAS].sort((a,b)=>b.mrr-a.mrr).map(m=>`<tr class="clickable" data-marca="${m.slug}">
+  <td class="tt"><span class="row-title"><span>${m.e}</span><span>${esc(m.n)}</span><span class="open">ABRIR</span></span></td>
+  <td>${planPill(m.plan)}</td>
+  <td class="num">${money(m.mrr)}</td>
+  <td class="opt">${m.plazas.map(k=>`<span class="pill ghost">${k}</span>`).join(' ')}</td>
+  <td><span class="person"><span class="av${m.analista==='Vos'?' g':''}">${m.analista.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}</span>${m.analista.split(' ')[0]}</span></td>
+  <td class="num ${m.sla>=0.9?'pos':m.sla<0.8?'neg':''}">${Math.round(m.sla*100)}%</td>
+  <td>${pill(SALUD[m.salud].c, SALUD[m.salud].t)}</td>
+  <td class="opt ${m.diasRenov<=60?'neg':''}">${fCorta(m.renueva)}${m.diasRenov<=90?` · ${m.diasRenov}d`:''}</td></tr>`).join('')}
+</tbody></table>
+<button class="addrow" data-toast="Alta de marca">＋ Nueva marca</button>
+<div class="dbfoot">${MARCAS.length} marcas · ${moneyM(mrrTotal)} MRR · ${MARCAS.reduce((a,m)=>a+m.plazas.length,0)} vínculos marca × plaza</div>
+<h2 class="h">Qué incluye cada plan</h2>
+<div class="callout brand"><span class="ce">🟢</span><div><b>Full.</b> 3 visitas semanales por tienda, reporte por visita, foto de góndola/punta/cartelería, control de precios y alerta de quiebre en el día. Informe semanal a la marca.</div></div>
+<div class="callout"><span class="ce">⚪</span><div><b>Estándar.</b> 2 visitas semanales, reporte por visita y foto de góndola principal. Informe quincenal.</div></div>
+<div class="callout"><span class="ce">⚪</span><div><b>Básico.</b> 1 visita semanal con reporte y relevamiento de stock. Informe mensual.</div></div>`;
+
+/* ---------- PIPELINE ---------- */
+PAGES.pipeline = ()=>`
+<div class="picon">🎯</div>
+<h1 class="title">Pipeline comercial</h1>
+<p class="lead">Oportunidades abiertas: marcas nuevas, upgrades de plan, extensiones a más plazas y renovaciones en riesgo. El valor es el MRR incremental que sumaría cada una.</p>
+<div class="kpis">
+  <div class="kpi"><div class="k">Valor total</div><div class="v">${moneyM(pipeTotal)}</div><div class="m">${PIPE.length} oportunidades</div></div>
+  <div class="kpi"><div class="k">Ponderado</div><div class="v">${moneyM(pipePond)}</div><div class="m">por probabilidad</div></div>
+  <div class="kpi"><div class="k">Cierran este trimestre</div><div class="v">${PIPE.filter(o=>o.cierre<=new Date(2026,8,30)).length}</div><div class="m">antes de septiembre</div></div>
+  <div class="kpi"><div class="k">Marcas nuevas</div><div class="v">${PIPE.filter(o=>o.tipo==='Marca nueva').length}</div><div class="m">de ${PIPE.length} del embudo</div></div>
+</div>
+<h2 class="h">Embudo por etapa</h2>
+<div class="kanban">${ETAPAS.map(et=>{
+  const list=PIPE.filter(o=>o.etapa===et);
+  const val=list.reduce((a,o)=>a+o.valor,0);
+  return `<div class="bcolwrap">
+    <h4 style="margin:0 0 9px;font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:8px">
+      ${esc(et)}<span style="color:var(--light);font-weight:400">${list.length}</span>
+      <span style="margin-left:auto;font-size:12px;color:var(--muted)">${val?moneyM(val):'—'}</span></h4>
+    ${list.map((o,i)=>`<button class="bcard" data-op="${o.id}" style="animation:fadeUp .3s var(--ease) both;animation-delay:${i*40}ms">
+      <span class="t"><span>${o.e}</span><span>${esc(o.marca)}</span></span>
+      <span class="pill ghost">${esc(o.tipo)}</span>
+      <span class="m" style="display:block">${moneyM(o.valor)} · ${Math.round(o.prob*100)}% · ${fCorta(o.cierre)}</span></button>`).join('') || `<div style="font-size:12.5px;color:var(--light);padding:4px 2px">Sin oportunidades</div>`}
+  </div>`;
+}).join('')}</div>
+<h2 class="h">Detalle</h2>
+<table><thead><tr>
+  <th style="width:18%"><span class="ph">Aa</span>Marca</th><th><span class="ph">◉</span>Tipo</th>
+  <th class="opt"><span class="ph">Aa</span>Detalle</th><th><span class="ph">#</span>Valor</th>
+  <th><span class="ph">#</span>Prob.</th><th><span class="ph">#</span>Ponderado</th>
+  <th class="opt"><span class="ph">📅</span>Cierre</th><th class="opt"><span class="ph">👤</span>Owner</th></tr></thead><tbody>
+${[...PIPE].sort((a,b)=>b.pond-a.pond).map(o=>`<tr class="clickable" data-op="${o.id}">
+  <td class="tt"><span class="row-title"><span>${o.e}</span><span>${esc(o.marca)}</span><span class="open">ABRIR</span></span></td>
+  <td>${pill('ghost',o.tipo)}</td>
+  <td class="opt" style="color:var(--muted)">${esc(o.det)}</td>
+  <td class="num">${money(o.valor)}</td>
+  <td class="num">${Math.round(o.prob*100)}%</td>
+  <td class="num">${money(o.pond)}</td>
+  <td class="opt">${fCorta(o.cierre)}</td>
+  <td class="opt">${esc(o.owner.split(' ')[0])}</td></tr>`).join('')}
+</tbody></table>
+<button class="addrow" data-toast="Nueva oportunidad">＋ Nueva oportunidad</button>`;
+
+/* ---------- RENOVACIONES ---------- */
+PAGES.renovaciones = ()=>{
+  const orden=[...MARCAS].sort((a,b)=>a.renueva-b.renueva);
+  const riesgoRenov = m=> m.salud==='crit' ? 'crit' : (m.salud==='warn'||m.diasRenov<=45) ? 'warn' : 'ok';
+  return `
+<div class="picon">🔁</div>
+<h1 class="title">Renovaciones</h1>
+<p class="lead">Contratos ordenados por fecha de vencimiento. La antelación recomendada para empezar la conversación de renovación es de 60 días.</p>
+<div class="callout ${renovProx.length?'warn':'brand'}"><span class="ce">${renovProx.length?'⚠️':'✅'}</span><div><b>${renovProx.length} renovación${renovProx.length===1?'':'es'} en los próximos 90 días</b> por ${moneyM(renovProx.reduce((a,m)=>a+m.arr,0))} de ARR. ${renovProx.filter(m=>m.salud!=='ok').length} con salud comprometida.</div></div>
+<div class="tl">${orden.map(m=>{
+  const rk=riesgoRenov(m), vencido=m.diasRenov<0;
+  return `<div class="tlrow ${rk!=='ok'?'risk':''}">
+    <div class="dwrap">${fCorta(m.renueva)}<br><span style="color:var(--light)">${vencido?`vencido`:`en ${m.diasRenov} d`}</span></div>
+    <button class="card" data-marca="${m.slug}" style="width:100%;text-align:left">
+      <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap">
+        <span style="font-size:16px">${m.e}</span><b>${esc(m.n)}</b>
+        ${planPill(m.plan)} ${pill(SALUD[m.salud].c,SALUD[m.salud].t)}
+        <span style="margin-left:auto" class="pill ${rk==='crit'?'red':rk==='warn'?'yellow':'green'}">${rk==='crit'?'Riesgo alto':rk==='warn'?'Atención':'En regla'}</span>
+      </div>
+      <div style="font-size:13px;color:var(--muted);margin-top:6px">
+        ${moneyM(m.arr)} anuales · SLA ${Math.round(m.sla*100)}% · NPS ${m.nps} · analista ${esc(m.analista.split(' ')[0])}
+      </div>
+      ${rk!=='ok'?`<div style="font-size:13px;margin-top:6px">${m.salud==='crit'
+        ? '⚠️ Cuenta en riesgo: preparar plan de recuperación de servicio antes de sentarse a renovar.'
+        : 'Enviar reporte trimestral de servicio junto con la propuesta de renovación.'}</div>`:''}
+    </button>
+  </div>`;
+}).join('')}</div>`;
+};
+
+/* ---------- SLA ---------- */
+PAGES.sla = ()=>{
+  const rows=MARCAS.map(m=>{
+    const c=COMPROMISO[m.plan];
+    const ent={v:Math.round(c.v*m.sla), r:Math.round(c.r*(m.sla-0.02)), f:Math.round(c.f*(m.sla-0.05))};
+    return {m, c, ent};
+  });
+  return `
+<div class="picon">✅</div>
+<h1 class="title">Cumplimiento de SLA</h1>
+<p class="lead">Lo que cada marca contrató contra lo que el equipo entregó este mes. Es la base de la conversación de renovación y el primer indicador de riesgo de baja.</p>
+<div class="callout ${slaCartera>=0.9?'brand':'red'}"><span class="ce">${slaCartera>=0.9?'✅':'🔴'}</span><div><b>SLA de cartera en ${Math.round(slaCartera*100)}%</b> (ponderado por facturación). ${MARCAS.filter(m=>m.sla<0.85).length} marcas por debajo del 85%, el umbral del contrato.</div></div>
+<h2 class="h">Contratado vs entregado — mes en curso</h2>
+<table><thead><tr>
+  <th style="width:20%"><span class="ph">Aa</span>Marca</th><th><span class="ph">◉</span>Plan</th>
+  <th><span class="ph">#</span>Visitas</th><th class="opt"><span class="ph">#</span>Reportes</th>
+  <th class="opt"><span class="ph">#</span>Fotos</th><th style="width:22%"><span class="ph">#</span>Cumplimiento</th>
+  <th><span class="ph">◉</span>Informe</th></tr></thead><tbody>
+${rows.map(({m,c,ent})=>`<tr class="clickable" data-marca="${m.slug}">
+  <td class="tt"><span class="row-title"><span>${m.e}</span><span>${esc(m.n)}</span></span></td>
+  <td>${planPill(m.plan)}</td>
+  <td class="num ${ent.v<c.v*0.85?'neg':''}">${ent.v}/${c.v}</td>
+  <td class="num opt">${ent.r}/${c.r}</td>
+  <td class="num opt">${ent.f}/${c.f}</td>
+  <td><span class="meter" style="margin-top:2px"><i data-w="${Math.round(m.sla*100)}"></i></span><span style="font-size:12px;color:var(--muted)">${Math.round(m.sla*100)}%</span></td>
+  <td>${m.informe==='al-dia'?pill('green','Al día'):pill('red','Atrasado')}</td></tr>`).join('')}
+</tbody></table>
+<div class="dbfoot">Compromiso mensual agregado por cuenta · Full 36 visitas · Estándar 16 · Básico 4</div>
+<h2 class="h">Ranking de servicio</h2>
+<div class="stagger">${[...MARCAS].sort((a,b)=>b.sla-a.sla).map(m=>`<div class="prov">
+  <span class="bn">${m.e} ${esc(m.n)}</span>
+  ${bar(m.sla*100, m.sla>=0.9)}
+  <span class="bv ${m.sla>=0.9?'pos':m.sla<0.8?'neg':''}">${Math.round(m.sla*100)}%</span>
+  <span class="bs">${SALUD[m.salud].t}</span></div>`).join('')}</div>`;
+};
+
+/* ---------- PLAZAS ---------- */
+PAGES.plazas = ()=>`
+<div class="picon">🗺️</div>
+<h1 class="title">Plazas y capacidad</h1>
+<p class="lead">Dónde opera hoy la agencia y cuánta capacidad instalada queda libre para sumar marcas sin agrandar la estructura.</p>
+<div class="kpis">
+  <div class="kpi"><div class="k">Plazas activas</div><div class="v">${plazasActivas.length}<span style="font-size:16px;color:var(--muted)">/${PLAZAS.length}</span></div><div class="m">1 piloto · 1 prospecto</div></div>
+  <div class="kpi"><div class="k">Tiendas cubiertas</div><div class="v">${PLAZAS.reduce((a,p)=>a+p.tiendas,0)}</div><div class="m">${PLAZAS.reduce((a,p)=>a+p.repos,0)} repositores</div></div>
+  <div class="kpi"><div class="k">Ocupación media</div><div class="v">${Math.round(plazasActivas.reduce((a,p)=>a+p.capac,0)/plazasActivas.length*100)}%</div><div class="m">de capacidad instalada</div></div>
+  <div class="kpi"><div class="k">Analistas de cuenta</div><div class="v">${PLAZAS.reduce((a,p)=>a+p.analistas,0)}</div><div class="m">en ${plazasActivas.length} plazas</div></div>
+</div>
+<div class="gal" style="grid-template-columns:repeat(2,1fr)">${PLAZAS.map(p=>`<button class="gcard" data-plaza="${p.k}" style="text-align:left">
+  <span class="b" style="padding:14px">
+    <span style="display:flex;align-items:center;gap:9px">
+      <b style="font-size:15px">${esc(p.n)}</b>${pill(PL_EST[p.est].c, PL_EST[p.est].t)}
+    </span>
+    <span class="m" style="display:block;margin-top:6px">${p.est==='prospecto'?'Sin operación propia todavía':`${p.tiendas} tiendas · ${p.repos} repositores · ${p.analistas} analista${p.analistas===1?'':'s'}`}</span>
+    ${p.est!=='prospecto'?`<span class="meter" style="margin-top:9px"><i data-w="${Math.round(p.capac*100)}"></i></span>
+    <span class="m" style="display:block;margin-top:4px">${Math.round(p.capac*100)}% de capacidad usada · abrió ${p.desde?fCorta(p.desde):'—'}</span>`:'<span class="m" style="display:block;margin-top:9px">Oportunidad: 2 cadenas regionales identificadas</span>'}
+  </span>
+</button>`).join('')}</div>
+<h2 class="h">Marcas por plaza</h2>
+<table class="heat"><thead><tr><th class="l">Plaza</th>${MARCAS.map(m=>`<th title="${m.n}">${m.e}</th>`).join('')}<th>Σ</th></tr></thead><tbody>
+${PLAZAS.filter(p=>p.est!=='prospecto').map(p=>`<tr><td class="l" style="font-size:13px;cursor:pointer" data-plaza="${p.k}">${esc(p.n)}</td>
+${MARCAS.map(m=>{const on=m.plazas.includes(p.k);
+  return `<td><div class="cell ${on?'':'na'}" style="${on?'background:'+ (m.plan==='Full'?'#0F7A55':'#5FA98A'):''}" title="${m.n}${on?' — '+m.plan:' — no opera acá'}">${on?'✓':'—'}</div></td>`;}).join('')}
+<td><div class="cell na">${MARCAS.filter(m=>m.plazas.includes(p.k)).length}</div></td></tr>`).join('')}
+</tbody></table>
+<div class="dbfoot">Verde oscuro plan Full · Verde claro Estándar/Básico · Gris la marca no opera en esa plaza</div>
+<hr class="div">
+<h2 class="h">Oportunidades de expansión</h2>
+<div class="callout warn"><span class="ce">🎯</span><div><b>Rosario</b> sigue como prospecto. Arcor pidió cobertura nacional y sería el ancla para abrir la plaza.</div></div>
+<div class="callout"><span class="ce">📈</span><div><b>Bahía Blanca</b> está al ${Math.round(PLAZA('BB').capac*100)}% de capacidad: entran 2 marcas más sin sumar repositores.</div></div>`;
+
+/* ---------- EQUIPO ---------- */
+PAGES.equipo = ()=>`
+<div class="picon">👥</div>
+<h1 class="title">Equipo comercial</h1>
+<p class="lead">Quién lleva cada cuenta, cuánto MRR gestiona y qué oportunidades tiene abiertas. Sirve para balancear cartera y detectar sobrecarga.</p>
+<div class="kpis">
+  <div class="kpi"><div class="k">Analistas de cuenta</div><div class="v">${EQUIPO.filter(e=>e.marcas.length).length}</div><div class="m">+ 1 responsable comercial</div></div>
+  <div class="kpi"><div class="k">MRR por analista</div><div class="v">${moneyM(mrrTotal/EQUIPO.filter(e=>e.marcas.length).length)}</div><div class="m">promedio de cartera</div></div>
+  <div class="kpi"><div class="k">Marcas por analista</div><div class="v">${(MARCAS.length/EQUIPO.filter(e=>e.marcas.length).length).toFixed(1)}</div><div class="m">objetivo: máx. 3</div></div>
+  <div class="kpi"><div class="k">Cuentas en riesgo</div><div class="v ${enRiesgo.length?'neg':''}">${enRiesgo.length}</div><div class="m">concentradas en 1 analista</div></div>
+</div>
+<table><thead><tr>
+  <th style="width:22%"><span class="ph">Aa</span>Persona</th><th><span class="ph">◉</span>Rol</th>
+  <th class="opt"><span class="ph">Aa</span>Cartera</th><th><span class="ph">#</span>MRR</th>
+  <th><span class="ph">#</span>NPS</th><th><span class="ph">#</span>Pipeline</th>
+  <th><span class="ph">#</span>En riesgo</th></tr></thead><tbody>
+${EQUIPO.map(e=>`<tr>
+  <td class="tt"><span class="row-title"><span class="person"><span class="av${e.n==='Vos'||e.n==='Marcos Ferreyra'?' g':''}">${e.ini}</span>${esc(e.n)}</span></span></td>
+  <td>${pill('ghost',e.rol)}</td>
+  <td class="opt" style="color:var(--muted)">${e.marcas.join(' · ')||'—'}</td>
+  <td class="num">${e.cartMrr?moneyM(e.cartMrr):'—'}</td>
+  <td class="num ${e.nps!=null?(e.nps>=7?'pos':e.nps<5?'neg':''):''}">${e.nps??'—'}</td>
+  <td class="num">${e.pipe.length?moneyM(e.pipe.reduce((a,o)=>a+o.valor,0)):'—'}</td>
+  <td class="num ${e.riesgo?'neg':''}">${e.riesgo||'—'}</td></tr>`).join('')}
+</tbody></table>
+<h2 class="h">Carga de cartera</h2>
+<div class="stagger">${EQUIPO.filter(e=>e.marcas.length).map(e=>`<div class="prov">
+  <span class="bn"><span class="person"><span class="av${e.n==='Vos'?' g':''}">${e.ini}</span>${e.n.split(' ')[0]}</span></span>
+  ${bar(e.cartMrr/mrrTotal*100, e.n==='Vos')}
+  <span class="bv">${moneyM(e.cartMrr)}</span><span class="bs">${e.marcas.length} marcas</span></div>`).join('')}</div>
+<div class="callout warn"><span class="ce">⚠️</span><div><b>Nicolás Ruiz</b> concentra las 2 cuentas en riesgo (Café Cruzeiro y Jugos Puro Sol) y el menor NPS de cartera. Evaluar acompañamiento de Marcos en las renovaciones o reasignar una cuenta.</div></div>`;
+
+/* ==================== PANELES ==================== */
+function openMarca(sl){
+  const m=MARCAS.find(x=>x.slug===sl); if(!m) return;
+  const c=COMPROMISO[m.plan];
+  const ops=PIPE.filter(o=>o.marca===m.n);
+  $('#peekBody').innerHTML=`
+    <div class="picon">${m.e}</div><h1>${esc(m.n)}</h1>
+    <div class="props">
+      <div class="prow"><span class="pkey">◉ Rubro</span><span class="pval">${pill(m.col,m.cat)}</span></div>
+      <div class="prow"><span class="pkey">◉ Plan contratado</span><span class="pval">${planPill(m.plan)} · ${money(m.mrr)}/mes</span></div>
+      <div class="prow"><span class="pkey">◉ Salud de cuenta</span><span class="pval">${pill(SALUD[m.salud].c,SALUD[m.salud].t)} ${npsPill(m.nps)}</span></div>
+      <div class="prow"><span class="pkey">👤 Analista</span><span class="pval"><span class="person"><span class="av${m.analista==='Vos'?' g':''}">${m.analista.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}</span>${esc(m.analista)}</span></span></div>
+      <div class="prow"><span class="pkey">🗺️ Plazas</span><span class="pval">${m.plazas.map(k=>`<span class="pill ghost">${PLAZA(k).n}</span>`).join(' ')}</span></div>
+      <div class="prow"><span class="pkey">📅 Cliente desde</span><span class="pval">${fLarga(m.alta)}</span></div>
+      <div class="prow"><span class="pkey">🔁 Renueva</span><span class="pval ${m.diasRenov<=60?'neg':''}">${fLarga(m.renueva)} · en ${m.diasRenov} días</span></div>
+      <div class="prow"><span class="pkey"># Valor anual</span><span class="pval num">${money(m.arr)}</span></div>
+    </div>
+    ${m.salud==='crit'
+      ? `<div class="callout red"><span class="ce">🔴</span><div><b>Cuenta en riesgo.</b> SLA en ${Math.round(m.sla*100)}% (bajo el 85% del contrato) y NPS ${m.nps}. Renueva en ${m.diasRenov} días — preparar plan de recuperación antes de la reunión.</div></div>`
+      : m.salud==='warn'
+      ? `<div class="callout warn"><span class="ce">⚠️</span><div><b>A vigilar.</b> ${m.informe==='atrasado'?'Informe atrasado y ':''}SLA en ${Math.round(m.sla*100)}%. Recuperable con una visita de seguimiento del analista.</div></div>`
+      : `<div class="callout brand"><span class="ce">✅</span><div>Cuenta saludable: SLA ${Math.round(m.sla*100)}%, NPS ${m.nps}, informe al día.</div></div>`}
+    <h3 class="h3">✅ Servicio del mes</h3>
+    <table><tbody>
+      <tr><td class="tt" style="width:50%"><span class="row-title"><span>Visitas</span></span></td><td class="num">${Math.round(c.v*m.sla)} / ${c.v}</td><td><span class="meter" style="margin:0"><i data-w="${Math.round(m.sla*100)}"></i></span></td></tr>
+      <tr><td class="tt"><span class="row-title"><span>Reportes</span></span></td><td class="num">${Math.round(c.r*(m.sla-0.02))} / ${c.r}</td><td><span class="meter" style="margin:0"><i data-w="${Math.round((m.sla-0.02)*100)}"></i></span></td></tr>
+      <tr><td class="tt"><span class="row-title"><span>Fotos</span></span></td><td class="num">${Math.round(c.f*(m.sla-0.05))} / ${c.f}</td><td><span class="meter" style="margin:0"><i data-w="${Math.round((m.sla-0.05)*100)}"></i></span></td></tr>
+    </tbody></table>
+    <h3 class="h3">🎯 Oportunidades abiertas</h3>
+    ${ops.length?ops.map(o=>`<button class="ccard" data-op="${o.id}">
+      <span class="em">${o.e}</span>
+      <span style="flex:1;min-width:0"><span class="t" style="display:block">${esc(o.tipo)}</span>
+      <span class="m" style="display:block">${esc(o.det)} · ${o.etapa} · ${Math.round(o.prob*100)}%</span></span>
+      <span class="r"><span class="big">${moneyM(o.valor)}</span><span class="lbl">incremental</span></span>
+    </button>`).join(''):'<p class="p" style="color:var(--light)">Sin oportunidades registradas para esta marca.</p>'}`;
+  abrirPeek();
+}
+function openOportunidad(id){
+  const o=PIPE.find(x=>x.id===id); if(!o) return;
+  const idx=ETAPAS.indexOf(o.etapa);
+  $('#peekBody').innerHTML=`
+    <div class="picon">${o.e}</div><h1>${esc(o.marca)}</h1>
+    <div class="props">
+      <div class="prow"><span class="pkey">◉ Tipo</span><span class="pval">${pill('ghost',o.tipo)}</span></div>
+      <div class="prow"><span class="pkey">◉ Detalle</span><span class="pval">${esc(o.det)}</span></div>
+      <div class="prow"><span class="pkey">◉ Etapa</span><span class="pval">${pill('brand',o.etapa)} <span style="color:var(--muted)">${idx+1} de ${ETAPAS.length}</span></span></div>
+      <div class="prow"><span class="pkey"># Valor incremental</span><span class="pval num">${money(o.valor)}/mes · ${money(o.valor*12)}/año</span></div>
+      <div class="prow"><span class="pkey"># Probabilidad</span><span class="pval num">${Math.round(o.prob*100)}% · ponderado ${money(o.pond)}</span></div>
+      <div class="prow"><span class="pkey">📅 Cierre estimado</span><span class="pval">${fLarga(o.cierre)}</span></div>
+      <div class="prow"><span class="pkey">👤 Owner</span><span class="pval"><span class="person"><span class="av${o.owner==='Vos'||o.owner==='Marcos Ferreyra'?' g':''}">${o.owner.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}</span>${esc(o.owner)}</span></span></div>
+    </div>
+    <h3 class="h3">Avance del embudo</h3>
+    <div class="stagger">${ETAPAS.map((et,i)=>`<div class="prov">
+      <span class="bn">${i<=idx?'✅':'⚪'} ${esc(et)}</span>
+      ${bar(i<=idx?100:0, i===idx)}
+      <span class="bv">${i<idx?'ok':i===idx?'ahora':''}</span><span class="bs"></span></div>`).join('')}</div>
+    ${o.tipo==='Renovación en riesgo'
+      ? `<div class="callout red"><span class="ce">🔴</span><div>Es una renovación en riesgo, no una venta nueva: si no cierra, se pierde el MRR actual de ${moneyM(o.valor)}.</div></div>`
+      : `<div class="callout brand"><span class="ce">📈</span><div>Sumaría ${moneyM(o.valor)} de MRR — un ${Math.round(o.valor/mrrTotal*100)}% sobre la facturación actual.</div></div>`}
+    <h3 class="h3">Próximo paso</h3>
+    <div class="callout"><span class="ce">➡️</span><div>${['Agendar primera reunión de descubrimiento.','Enviar diagnóstico de plaza y calificar presupuesto.','Presentar propuesta formal con alcance y precio.','Cerrar condiciones y pasar a contrato.','Firma y onboarding con el analista asignado.'][idx]}</div></div>`;
+  abrirPeek();
+}
+function openPlaza(k){
+  const p=PLAZA(k); if(!p) return;
+  const ms=MARCAS.filter(m=>m.plazas.includes(k));
+  $('#peekBody').innerHTML=`
+    <div class="picon">📍</div><h1>${esc(p.n)}</h1>
+    <div class="props">
+      <div class="prow"><span class="pkey">◉ Estado</span><span class="pval">${pill(PL_EST[p.est].c, PL_EST[p.est].t)}</span></div>
+      <div class="prow"><span class="pkey">🏪 Tiendas</span><span class="pval">${p.tiendas||'—'}</span></div>
+      <div class="prow"><span class="pkey">👥 Repositores</span><span class="pval">${p.repos||'—'}</span></div>
+      <div class="prow"><span class="pkey">👤 Analistas de cuenta</span><span class="pval">${p.analistas||'—'}</span></div>
+      <div class="prow"><span class="pkey">📅 Operativa desde</span><span class="pval">${p.desde?fLarga(p.desde):'Sin abrir'}</span></div>
+      <div class="prow"><span class="pkey"># Capacidad usada</span><span class="pval num">${p.est==='prospecto'?'—':Math.round(p.capac*100)+'%'}</span></div>
+    </div>
+    ${p.est==='prospecto'
+      ? `<div class="callout warn"><span class="ce">🎯</span><div>Plaza sin operación. Se abre con una marca ancla que justifique la estructura mínima (2 repositores + 1 analista).</div></div>`
+      : p.capac>=0.85
+      ? `<div class="callout red"><span class="ce">🔴</span><div>Al ${Math.round(p.capac*100)}% de capacidad. Sumar otra marca acá exige contratar y capacitar repositores primero.</div></div>`
+      : `<div class="callout brand"><span class="ce">📈</span><div>Queda un ${Math.round((1-p.capac)*100)}% de capacidad libre: se pueden sumar marcas sin agrandar la estructura.</div></div>`}
+    <h3 class="h3">🤝 Marcas que operan acá</h3>
+    ${ms.length?ms.map(m=>`<button class="ccard" data-marca="${m.slug}">
+      <span class="em">${m.e}</span>
+      <span style="flex:1;min-width:0"><span class="t" style="display:block">${esc(m.n)}</span>
+      <span class="m" style="display:block">${m.plan} · ${money(m.mrr)}/mes · SLA ${Math.round(m.sla*100)}%</span></span>
+      <span class="r"><span class="big ${m.salud==='ok'?'pos':m.salud==='crit'?'neg':''}">${SALUD[m.salud].t}</span><span class="lbl">salud</span></span>
+    </button>`).join(''):'<p class="p" style="color:var(--light)">Todavía sin marcas asignadas.</p>'}`;
+  abrirPeek();
+}
+function abrirPeek(){
+  [...$('#peekBody').children].forEach((n,k)=>n.style.animationDelay=Math.min(k*30,300)+'ms');
+  $('#peek').classList.add('on'); $('#peek').setAttribute('aria-hidden','false');
+  $('#scrim').classList.add('on'); $('#peekBody').scrollTop=0; post($('#peekBody'));
+}
+function closePeek(){ $('#peek').classList.remove('on'); $('#peek').setAttribute('aria-hidden','true'); $('#scrim').classList.remove('on'); }
+$('#peekClose').addEventListener('click',closePeek);
+$('#scrim').addEventListener('click',closePeek);
+
+render('resumen');
+</script>
+</body>
+</html>

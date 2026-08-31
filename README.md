@@ -7,7 +7,9 @@ Bocetos de interfaz (HTML estático, sin build) para el servicio de reposición 
 | Archivo | Vista | Estado |
 |---|---|---|
 | `index.html` | Analista de cuenta / asistente comercial | En revisión |
-| _(pendiente)_ | Supervisor / comercial (panel de Marcos Ferreyra) | Por hacer |
+| `supervisor.html` | Supervisor comercial (panel de Marcos Ferreyra) | Boceto inicial |
+
+Ambas comparten `styles.css` y el selector de vista arriba a la izquierda (el menú del workspace).
 
 ## Deploy en Vercel
 
