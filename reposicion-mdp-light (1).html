@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Servicio de reposición — Mar del Plata</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FFFFFF; --side:#F7F8F7; --wash:#F7F9F8; --surface-2:#F2F4F3;
+  --text:#2E322F; --muted:#71776F; --light:#9AA09A;
+  --line:rgba(46,50,47,.09); --border:#E4E8E5;
+  --hover:rgba(15,122,85,.06); --hover-2:rgba(46,50,47,.055);
+  --brand:#0F7A55; --brand-600:#12946A; --brand-bright:#16B27E;
+  --brand-tint:#EAF4EF; --brand-line:#BFDECF;
+  --c-red:#FBE4DF;--c-red-t:#8A3A2C; --c-orange:#FAE4CE;--c-orange-t:#8A4B22;
+  --c-yellow:#FBEECB;--c-yellow-t:#7E5C12; --c-green:#DCEFE5;--c-green-t:#0C5C3F;
+  --c-blue:#D6E6EE;--c-blue-t:#22546B; --c-purple:#E7DFEE;--c-purple-t:#503A63;
+  --c-brown:#EDE1DA;--c-brown-t:#67483C; --c-gray:#E4E6E3;--c-gray-t:#565B56;
+  --t-red:#B8503F; --t-green:#0F7A55;
+  --font:'Inter',ui-sans-serif,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
+  --ease:cubic-bezier(.2,.7,.3,1);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%}
+body{font-family:var(--font);color:var(--text);background:var(--bg);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:none;padding:0;cursor:pointer;text-align:left}
+input{font:inherit}
+:focus-visible{outline:2px solid var(--brand-600);outline-offset:1px;border-radius:4px}
+::selection{background:rgba(22,178,126,.22)}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:rgba(46,50,47,.18);border-radius:8px;border:3px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-thumb:hover{background:rgba(46,50,47,.3);background-clip:content-box}
+.app{display:flex;height:100vh;overflow:hidden}
+
+/* ===== SIDEBAR ===== */
+.sidebar{width:256px;flex:0 0 256px;background:var(--side);border-right:1px solid var(--line);
+  display:flex;flex-direction:column;overflow:hidden;transition:width .24s var(--ease),flex-basis .24s var(--ease)}
+.sidebar.slim{width:60px;flex-basis:60px}
+.sidebar.slim .hide-slim{display:none}
+.sidebar.slim .tnode,.sidebar.slim .sitem{justify-content:center;padding-left:0;padding-right:0}
+.sbody{flex:1;overflow-y:auto;padding-bottom:8px}
+.ws{display:flex;align-items:center;gap:9px;padding:10px 11px;margin:6px 8px 2px;border-radius:6px;width:calc(100% - 16px);transition:background .15s}
+.ws:hover{background:var(--hover-2)}
+.ws .av{width:24px;height:24px;border-radius:6px;flex:0 0 24px;display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;color:#fff;background:linear-gradient(150deg,var(--brand-bright),var(--brand));
+  box-shadow:0 3px 10px rgba(15,122,85,.25)}
+.ws .nm{font-size:13.5px;font-weight:600;line-height:1.25;min-width:0;overflow:hidden}
+.ws .nm small{display:block;font-size:11px;font-weight:400;color:var(--muted);white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+.ws .cv{margin-left:auto;color:var(--light);font-size:11px}
+.snav{padding:6px 8px}
+.sitem{display:flex;align-items:center;gap:10px;width:100%;padding:6px 10px;border-radius:6px;
+  font-size:13.5px;color:var(--muted);font-weight:500;transition:background .14s,color .14s,transform .14s var(--ease)}
+.sitem:hover{background:var(--hover);color:var(--brand);transform:translateX(2px)}
+.sitem .ic{width:18px;text-align:center;font-size:13px;flex:0 0 18px}
+.sitem .kbd{margin-left:auto;font-size:10.5px;color:var(--light);border:1px solid var(--border);border-radius:4px;padding:0 5px;background:#fff}
+.gsec{display:flex;align-items:center;width:100%;padding:15px 16px 5px;font-size:11px;font-weight:600;
+  color:var(--light);letter-spacing:.08em;text-transform:uppercase}
+.gsec .cv{margin-right:6px;font-size:9px;transition:transform .18s var(--ease);display:inline-block}
+.gsec.closed .cv{transform:rotate(-90deg)}
+.gsec .plus{margin-left:auto;opacity:0;font-size:13px;transition:opacity .14s}
+.gsec:hover .plus{opacity:.7}
+.group{overflow:hidden;transition:height .22s var(--ease)}
+.tree{padding:0 8px}
+.tnode{display:flex;align-items:center;gap:6px;width:100%;padding:5px 9px;border-radius:6px;
+  font-size:13.5px;color:var(--text);position:relative;transition:background .14s,color .14s}
+.tnode:hover{background:var(--hover-2)}
+.tnode.on{background:var(--brand-tint);color:#0B5C40;font-weight:500}
+.tnode.on::before{content:"";position:absolute;left:0;top:6px;bottom:6px;width:2.5px;border-radius:2px;background:var(--brand)}
+.tnode .ti{width:18px;text-align:center;flex:0 0 18px}
+.tnode .tt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.tnode .bdg{font-size:11px;color:var(--muted);background:var(--surface-2);border-radius:8px;padding:0 6px}
+.tnode.on .bdg{background:#fff;color:var(--brand)}
+.tnode .plus{color:var(--light);opacity:0;font-size:13px;transition:opacity .14s}
+.tnode:hover .plus{opacity:1}
+.sfoot{border-top:1px solid var(--line);padding:6px 8px}
+
+/* ===== MAIN ===== */
+.main{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden}
+.topbar{height:46px;display:flex;align-items:center;gap:6px;padding:0 12px;flex:0 0 46px;
+  border-bottom:1px solid var(--line);background:rgba(255,255,255,.86);backdrop-filter:blur(10px);z-index:5}
+.crumb{display:flex;align-items:center;gap:5px;font-size:13.5px;color:var(--muted);min-width:0}
+.crumb b{font-weight:500;color:var(--text)}
+.crumb .cb{padding:3px 7px;border-radius:5px;white-space:nowrap;transition:background .14s}
+.crumb .cb:hover{background:var(--hover)}
+.tools{margin-left:auto;display:flex;align-items:center;gap:2px;color:var(--muted);font-size:13px}
+.tbtn{padding:5px 9px;border-radius:5px;transition:background .14s,color .14s}
+.tbtn:hover{background:var(--hover);color:var(--brand)}
+.scroll{overflow-y:auto;flex:1;background:linear-gradient(180deg,#fff 0 60vh,var(--wash) 100%)}
+.page{max-width:930px;margin:0 auto;padding:0 58px 120px}
+.cover{height:140px;position:relative;overflow:hidden;background:#0C100E}
+.cover .g{position:absolute;inset:-30%;animation:drift 24s ease-in-out infinite alternate;
+  background:radial-gradient(45% 60% at 18% 30%,rgba(63,220,163,.42),transparent 62%),
+             radial-gradient(40% 55% at 72% 68%,rgba(15,122,85,.6),transparent 66%),
+             radial-gradient(35% 50% at 92% 12%,rgba(63,220,163,.2),transparent 70%)}
+@keyframes drift{0%{transform:translate3d(0,0,0) scale(1)}100%{transform:translate3d(-4%,3%,0) scale(1.1)}}
+.cover .grid{position:absolute;inset:0;opacity:.3;background-size:44px 44px;
+  background-image:linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px)}
+.cover .edge{position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,var(--brand-bright),var(--brand),transparent)}
+.picon{font-size:62px;line-height:1;margin-top:-42px;display:inline-block;position:relative;
+  filter:drop-shadow(0 6px 14px rgba(12,16,14,.24));animation:pop .5s var(--ease) both}
+@keyframes pop{0%{transform:scale(.7) translateY(10px);opacity:0}100%{transform:none;opacity:1}}
+h1.title{font-size:39px;font-weight:700;letter-spacing:-.025em;margin:8px 0 4px;line-height:1.14}
+h1.title .accent{color:var(--brand)}
+.lead{color:var(--muted);font-size:14.5px;margin:0 0 20px;max-width:66ch}
+h2.h{font-size:22px;font-weight:600;letter-spacing:-.015em;margin:28px 0 6px;display:flex;align-items:center;gap:9px}
+h2.h::before{content:"";width:3px;height:16px;border-radius:2px;background:var(--brand)}
+h3.h3{font-size:17px;font-weight:600;margin:22px 0 4px}
+.p{margin:2px 0;font-size:14.5px}
+hr.div{border:none;border-top:1px solid var(--line);margin:24px 0}
+.fadein{animation:fadeUp .32s var(--ease) both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.stagger > *{animation:fadeUp .34s var(--ease) both}
+
+.props{margin:0 0 20px}
+.prow{display:flex;gap:6px;padding:3px 0;font-size:14px}
+.pkey{width:190px;flex:0 0 190px;display:flex;align-items:center;gap:7px;color:var(--muted);padding:4px 6px;border-radius:5px;font-size:13.5px}
+.pkey:hover{background:var(--hover-2)}
+.pval{padding:4px 8px;border-radius:5px;flex:1;min-width:0}
+.pval:hover{background:var(--hover)}
+.callout{display:flex;gap:12px;background:var(--wash);border:1px solid var(--border);border-radius:8px;
+  padding:15px 16px;margin:12px 0;font-size:14.5px;transition:border-color .18s,box-shadow .18s,transform .18s var(--ease)}
+.callout:hover{border-color:var(--brand-line);box-shadow:0 3px 14px rgba(46,50,47,.05);transform:translateY(-1px)}
+.callout .ce{font-size:17px;flex:0 0 auto;line-height:1.35}
+.callout.brand{background:var(--brand-tint);border-color:var(--brand-line)}
+.callout.warn{background:#FCF6E4;border-color:#EFE2C0}
+.callout.red{background:#FCEDEA;border-color:#F2D8D1}
+.callout b{font-weight:600}
+.meter{display:block;margin-top:9px;height:6px;border-radius:6px;background:rgba(46,50,47,.09);overflow:hidden}
+.meter i{display:block;height:100%;width:0;border-radius:6px;background:linear-gradient(90deg,var(--brand),var(--brand-bright));transition:width 1.1s var(--ease)}
+.count{font-variant-numeric:tabular-nums}
+
+.pill{display:inline-flex;align-items:center;gap:5px;border-radius:4px;padding:2px 8px;font-size:12.5px;
+  line-height:18px;white-space:nowrap;background:var(--c-gray);color:var(--c-gray-t)}
+.pill.red{background:var(--c-red);color:var(--c-red-t)}
+.pill.orange{background:var(--c-orange);color:var(--c-orange-t)}
+.pill.yellow{background:var(--c-yellow);color:var(--c-yellow-t)}
+.pill.green{background:var(--c-green);color:var(--c-green-t)}
+.pill.blue{background:var(--c-blue);color:var(--c-blue-t)}
+.pill.purple{background:var(--c-purple);color:var(--c-purple-t)}
+.pill.brown{background:var(--c-brown);color:var(--c-brown-t)}
+.pill.brand{background:var(--brand-tint);color:var(--brand);box-shadow:inset 0 0 0 1px var(--brand-line)}
+.pill.ghost{background:transparent;color:var(--muted);box-shadow:inset 0 0 0 1px var(--border)}
+.person{display:inline-flex;align-items:center;gap:7px;font-size:13.5px}
+.person .av{width:21px;height:21px;border-radius:50%;font-size:9.5px;font-weight:700;display:flex;
+  align-items:center;justify-content:center;background:var(--c-gray);color:var(--c-gray-t)}
+.person .av.g{background:var(--brand-tint);color:var(--brand);box-shadow:inset 0 0 0 1px var(--brand-line)}
+
+.dbhead{display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--line);margin-top:10px;position:relative}
+.vtab{padding:8px 3px 9px;font-size:14px;color:var(--muted);font-weight:500;transition:color .16s}
+.vtab:hover{color:var(--text)}
+.vtab[aria-selected="true"]{color:var(--brand)}
+.vind{position:absolute;bottom:-1px;height:2px;background:var(--brand);border-radius:2px;transition:left .28s var(--ease),width .28s var(--ease)}
+.dbtools{margin-left:auto;display:flex;align-items:center;gap:3px;color:var(--muted);font-size:13px}
+.dbtools .new{background:var(--brand);color:#fff;border-radius:6px;padding:5px 12px;font-size:13.5px;font-weight:500;
+  transition:background .16s,transform .16s var(--ease),box-shadow .16s}
+.dbtools .new:hover{background:var(--brand-600);transform:translateY(-1px);box-shadow:0 4px 12px rgba(15,122,85,.24)}
+table{width:100%;border-collapse:collapse}
+thead th{font-size:12.5px;color:var(--muted);font-weight:400;text-align:left;padding:8px;
+  border-bottom:1px solid var(--line);border-right:1px solid var(--line);white-space:nowrap}
+thead th:last-child{border-right:none}
+thead th .ph{color:var(--light);font-size:11px;margin-right:5px}
+tbody td{padding:8px;border-bottom:1px solid var(--line);border-right:1px solid var(--line);font-size:14px;vertical-align:middle}
+tbody td:last-child{border-right:none}
+tbody tr.clickable{cursor:pointer;transition:background .14s}
+tbody tr.clickable:hover{background:var(--hover)}
+tbody tr.clickable td:first-child{position:relative}
+tbody tr.clickable td:first-child::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--brand);
+  transform:scaleY(0);transition:transform .18s var(--ease)}
+tbody tr.clickable:hover td:first-child::before{transform:scaleY(1)}
+td.tt .row-title{display:flex;align-items:center;gap:8px}
+td.tt .open{margin-left:auto;opacity:0;font-size:11px;color:var(--brand);border:1px solid var(--brand-line);
+  border-radius:5px;padding:1px 8px;background:var(--brand-tint);transform:translateX(4px);transition:opacity .16s,transform .16s var(--ease)}
+tbody tr:hover td.tt .open{opacity:1;transform:none}
+.num{font-variant-numeric:tabular-nums}
+.neg{color:var(--t-red)}.pos{color:var(--t-green)}
+.addrow{padding:8px;color:var(--muted);font-size:14px;border-bottom:1px solid var(--line);width:100%;transition:background .14s,color .14s}
+.addrow:hover{background:var(--hover);color:var(--brand)}
+.dbfoot{padding:9px 8px;font-size:11.5px;color:var(--light);letter-spacing:.04em;text-transform:uppercase}
+
+.board{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:16px 0 6px}
+.bcolwrap{background:var(--wash);border:1px solid var(--border);border-radius:9px;padding:11px}
+.bcol h4{margin:0 0 9px;font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
+.bcol h4 .cnt{color:var(--light);font-weight:400;font-size:13px}
+.bcard{background:#fff;border:1px solid var(--border);border-radius:7px;padding:10px 11px;margin-bottom:8px;width:100%;
+  box-shadow:0 1px 2px rgba(46,50,47,.04);transition:transform .18s var(--ease),box-shadow .18s,border-color .18s}
+.bcard:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(46,50,47,.09);border-color:var(--brand-line)}
+.bcard .t{font-size:14px;font-weight:500;margin-bottom:7px;display:flex;gap:7px;line-height:1.3}
+.bcard .m{font-size:12.5px;color:var(--muted);margin-top:7px}
+.gal{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:16px 0 6px}
+.gcard{border:1px solid var(--border);border-radius:9px;overflow:hidden;background:#fff;width:100%;
+  box-shadow:0 1px 2px rgba(46,50,47,.04);transition:transform .2s var(--ease),box-shadow .2s,border-color .2s}
+.gcard:hover{transform:translateY(-3px);box-shadow:0 10px 26px rgba(46,50,47,.1);border-color:var(--brand-line)}
+.gcard .cv{background:var(--surface-2);display:block;overflow:hidden;position:relative}
+.gcard .cv img{display:block;width:100%;height:132px;object-fit:cover;transition:transform .35s var(--ease)}
+.gcard:hover .cv img{transform:scale(1.04)}
+.gcard svg{display:block;width:100%;height:auto;transition:transform .35s var(--ease)}
+.gcard:hover svg{transform:scale(1.03)}
+.gcard .b{padding:10px 11px}
+.gcard .b .t{font-size:14px;font-weight:500;margin-bottom:6px;line-height:1.3;display:block}
+.gcard .b .m{font-size:12.5px;color:var(--muted);margin-top:6px;display:block}
+.tagreal{position:absolute;left:8px;top:8px;background:rgba(12,16,14,.78);color:#fff;font-size:10px;
+  padding:2px 7px;border-radius:4px;backdrop-filter:blur(4px)}
+.pg rect.b{transform-box:fill-box;transform-origin:bottom;animation:grow .5s var(--ease) both}
+@keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+.pg rect.hole{animation:breathe 2.6s ease-in-out infinite}
+@keyframes breathe{0%,100%{opacity:.55}50%{opacity:1}}
+
+.rep{display:flex;gap:12px;padding:12px 8px;border-bottom:1px solid var(--line);border-radius:6px;transition:background .14s}
+.rep:hover{background:var(--hover)}
+.rep .av{width:27px;height:27px;border-radius:50%;background:var(--brand-tint);color:var(--brand);font-size:10.5px;
+  font-weight:700;display:flex;align-items:center;justify-content:center;flex:0 0 27px;margin-top:1px;box-shadow:inset 0 0 0 1px var(--brand-line)}
+.rep .h{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:2px}
+.rep .h .who{font-size:13.5px;font-weight:600}
+.rep .h .when{font-size:12px;color:var(--light)}
+.rep p{margin:2px 0 0;font-size:14px}
+.rep .st{font-size:13px;color:var(--muted);margin-top:5px}
+.rep .st a{color:var(--brand);text-decoration:none;border-bottom:1px solid var(--brand-line);cursor:pointer}
+
+.heat{width:100%;border-collapse:separate;border-spacing:2px}
+.heat th{font-size:11px;color:var(--muted);font-weight:500;padding:4px;text-align:center;border:none}
+.heat th.l{text-align:left;font-size:12.5px;color:var(--text);width:190px}
+.heat td{padding:0;border:none}
+.heat .cell{height:30px;border-radius:4px;display:flex;align-items:center;justify-content:center;
+  font-size:11.5px;font-weight:600;color:#fff;transition:transform .14s var(--ease)}
+.heat .cell:hover{transform:scale(1.09)}
+.heat .cell.na{background:var(--surface-2);color:var(--light);font-weight:400}
+
+.prov{display:grid;grid-template-columns:170px 1fr 54px 60px;gap:10px;align-items:center;padding:5px 0;font-size:13.5px}
+.prov .bn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prov .bt{height:9px;background:var(--surface-2);border-radius:3px;overflow:hidden}
+.prov .bf{height:100%;width:0;border-radius:3px;background:var(--brand);transition:width .9s var(--ease)}
+.prov .bf.mine{background:linear-gradient(90deg,var(--brand),var(--brand-bright))}
+.prov .bv{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.prov .bs{text-align:right;font-size:12px;color:var(--light)}
+.prov.zero .bv{color:var(--light);font-weight:400}
+.regh{display:flex;align-items:center;gap:9px;margin:20px 0 6px;font-size:12px;font-weight:600;
+  letter-spacing:.07em;text-transform:uppercase;color:var(--light)}
+.regh .n{margin-left:auto;letter-spacing:0;text-transform:none;font-weight:400;color:var(--muted)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0 4px}
+.kpi{background:#fff;border:1px solid var(--border);border-radius:9px;padding:13px 14px;transition:border-color .18s,box-shadow .18s}
+.kpi:hover{border-color:var(--brand-line);box-shadow:0 4px 14px rgba(46,50,47,.06)}
+.kpi .k{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.kpi .v{font-size:27px;font-weight:700;letter-spacing:-.02em;margin-top:4px;font-variant-numeric:tabular-nums}
+.kpi .m{font-size:12px;color:var(--light);margin-top:2px}
+
+.ccard{display:flex;gap:13px;align-items:flex-start;background:#fff;border:1px solid var(--border);border-radius:10px;
+  padding:14px;margin-bottom:9px;width:100%;transition:transform .18s var(--ease),box-shadow .18s,border-color .18s}
+.ccard:hover{transform:translateY(-2px);box-shadow:0 7px 20px rgba(46,50,47,.08);border-color:var(--brand-line)}
+.ccard .em{width:42px;height:42px;border-radius:12px;flex:0 0 42px;display:flex;align-items:center;justify-content:center;
+  font-size:20px;background:var(--surface-2)}
+.ccard .t{font-size:15.5px;font-weight:600}
+.ccard .m{font-size:12.5px;color:var(--muted);margin-top:2px}
+.ccard .r{margin-left:auto;text-align:right;flex:0 0 auto}
+.ccard .r .big{font-size:21px;font-weight:700;font-variant-numeric:tabular-nums}
+.ccard .r .lbl{font-size:11px;color:var(--light);letter-spacing:.05em;text-transform:uppercase}
+
+.cfg{border:1px dashed var(--border);border-radius:10px;padding:16px;background:#fff;margin:14px 0}
+.cfg .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.inp{border:1px solid var(--border);border-radius:7px;padding:8px 11px;font-size:13.5px;background:#fff;min-width:220px;flex:1}
+.inp:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(15,122,85,.1)}
+.btnb{background:var(--brand);color:#fff;border-radius:7px;padding:8px 14px;font-size:13.5px;font-weight:500;transition:background .16s,transform .16s var(--ease)}
+.btnb:hover{background:var(--brand-600)} .btnb:active{transform:scale(.98)}
+.btng{background:#fff;color:var(--text);border-radius:7px;padding:8px 14px;font-size:13.5px;box-shadow:inset 0 0 0 1px var(--border);transition:background .16s}
+.btng:hover{background:var(--wash)}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;background:var(--surface-2);padding:1.5px 6px;border-radius:4px;color:#4A5750}
+.slots{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px}
+.slot{border:1px solid var(--border);border-radius:9px;overflow:hidden;background:#fff;width:100%;text-align:left;
+  transition:border-color .18s,box-shadow .18s,transform .18s var(--ease)}
+.slot:hover{border-color:var(--brand-line);box-shadow:0 5px 16px rgba(46,50,47,.08);transform:translateY(-2px)}
+.slot .im{height:112px;background:var(--surface-2);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.slot .im img{width:100%;height:100%;object-fit:cover;display:block}
+.slot .ph{color:var(--light);font-size:11.5px;text-align:center;padding:0 12px;line-height:1.5}
+.slot .ph b{display:block;font-size:20px;color:var(--brand);margin-bottom:4px}
+.slot .cap{padding:8px 10px;font-size:12px;color:var(--muted);border-top:1px solid var(--line)}
+.slot .cap b{display:block;color:var(--text);font-size:12.5px;font-weight:500;margin-bottom:2px}
+
+.lb{position:fixed;inset:0;background:rgba(12,16,14,.9);z-index:80;display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .22s;padding:32px}
+.lb.on{opacity:1;pointer-events:auto}
+.lb img{max-width:100%;max-height:100%;border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.lb .cl{position:absolute;top:18px;right:22px;color:#fff;font-size:22px;padding:8px}
+.scrim{position:fixed;inset:0;background:rgba(12,16,14,.32);backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity .2s;z-index:40}
+.scrim.on{opacity:1;pointer-events:auto}
+.peek{position:fixed;top:0;right:0;height:100%;width:min(700px,95vw);background:#fff;z-index:50;
+  box-shadow:-1px 0 0 var(--border),-14px 0 44px rgba(46,50,47,.16);
+  transform:translateX(102%);transition:transform .26s var(--ease);display:flex;flex-direction:column}
+.peek.on{transform:none}
+.peek .pk-top{height:46px;display:flex;align-items:center;gap:4px;padding:0 12px;flex:0 0 46px;border-bottom:1px solid var(--line);color:var(--muted);font-size:13px}
+.peek .pk-body{overflow-y:auto;padding:24px 44px 90px}
+.peek .pk-body > *{animation:fadeUp .34s var(--ease) both}
+.peek h1{font-size:29px;font-weight:700;margin:8px 0 14px;letter-spacing:-.02em}
+.peek .picon{font-size:42px;margin-top:0;filter:none}
+.pal{position:fixed;inset:0;z-index:70;display:flex;align-items:flex-start;justify-content:center;padding-top:14vh;
+  background:rgba(12,16,14,.3);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .18s}
+.pal.on{opacity:1;pointer-events:auto}
+.palbox{width:min(560px,92vw);background:#fff;border-radius:12px;box-shadow:0 24px 60px rgba(46,50,47,.28);
+  overflow:hidden;transform:translateY(-8px) scale(.985);transition:transform .2s var(--ease)}
+.pal.on .palbox{transform:none}
+.palbox input{width:100%;border:none;outline:none;padding:16px 18px;font-size:15.5px;border-bottom:1px solid var(--line)}
+.palist{max-height:min(56vh,420px);overflow-y:auto;padding:6px}
+.palrow{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:7px;width:100%;font-size:14px}
+.palrow.sel{background:var(--brand-tint)}
+.palrow .i{width:20px;text-align:center}
+.palrow .m{margin-left:auto;font-size:11.5px;color:var(--light)}
+.palfoot{padding:8px 14px;border-top:1px solid var(--line);font-size:11.5px;color:var(--light);display:flex;gap:14px}
+.toast{position:fixed;left:22px;bottom:22px;z-index:90;display:flex;align-items:center;gap:9px;background:#222824;
+  color:#fff;padding:11px 15px;border-radius:9px;font-size:13.5px;box-shadow:0 12px 32px rgba(0,0,0,.24);
+  opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .22s,transform .22s var(--ease)}
+.toast.on{opacity:1;transform:none}
+.toast .d{width:7px;height:7px;border-radius:50%;background:var(--brand-bright)}
+.menu{display:none}
+@media (max-width:1080px){
+  .page{padding:0 30px 100px}.peek .pk-body{padding:22px 24px 70px}
+  .gal,.board,.kpis{grid-template-columns:repeat(2,1fr)}.slots{grid-template-columns:1fr}
+}
+@media (max-width:820px){
+  .sidebar{position:fixed;left:0;top:0;bottom:0;z-index:60;transform:translateX(-102%);transition:transform .24s var(--ease);box-shadow:14px 0 40px rgba(46,50,47,.2)}
+  .sidebar.open{transform:none}.menu{display:block}
+  .page{padding:0 16px 80px}h1.title{font-size:28px}
+  .gal,.board,.kpis{grid-template-columns:1fr}.pkey{width:140px;flex-basis:140px}
+  th.opt,td.opt{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="sidebar" id="sidebar">
+    <div class="sbody">
+      <button class="ws"><span class="av">RP</span>
+        <span class="nm hide-slim">Gestion Analista de Cuenta<small>Marcos Ferreyra · Asistente</small></span>
+        <span class="cv hide-slim">⌄</span></button>
+      <div class="snav">
+        <button class="sitem" id="btnPal"><span class="ic">🔍</span><span class="hide-slim">Buscar</span><span class="kbd hide-slim">⌘K</span></button>
+        <button class="sitem" data-toast="Se abriría el historial"><span class="ic">🕘</span><span class="hide-slim">Recientes</span></button>
+        <button class="sitem" data-toast="3 avisos nuevos"><span class="ic">📥</span><span class="hide-slim">Bandeja</span><span class="kbd hide-slim">3</span></button>
+      </div>
+      <button class="gsec" data-group="g1"><span class="cv">▾</span><span class="hide-slim">Servicio</span><span class="plus hide-slim">＋</span></button>
+      <div class="group" id="g1"><div class="tree" id="nav1"></div></div>
+      <button class="gsec" data-group="g2"><span class="cv">▾</span><span class="hide-slim">Clientes fijados</span><span class="plus hide-slim">＋</span></button>
+      <div class="group" id="g2"><div class="tree" id="favs"></div></div>
+    </div>
+    <div class="sfoot">
+      <button class="sitem" id="btnSlim"><span class="ic">⟨⟩</span><span class="hide-slim">Contraer barra</span></button>
+      <button class="sitem" data-toast="Papelera vacía"><span class="ic">🗑️</span><span class="hide-slim">Papelera</span></button>
+    </div>
+  </nav>
+
+  <div class="main">
+    <div class="topbar">
+      <button class="tbtn menu" id="menuBtn">☰</button>
+      <div class="crumb"><button class="cb">🗺️ Reposición Mar del Plata</button><span>/</span><button class="cb"><b id="crumbNow"></b></button></div>
+      <div class="tools">
+        <button class="tbtn" id="tSync">Sincronizar</button>
+        <button class="tbtn" data-toast="Se generaría el PDF del informe">Exportar informe</button>
+        <button class="tbtn" data-toast="Enlace copiado">Compartir</button>
+        <button class="tbtn" data-toast="Más opciones">···</button>
+      </div>
+    </div>
+    <div class="scroll" id="scroll">
+      <div class="cover"><span class="g"></span><span class="grid"></span><span class="edge"></span></div>
+      <div class="page" id="page"></div>
+    </div>
+  </div>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="peek" id="peek" aria-hidden="true">
+  <div class="pk-top"><button class="tbtn" id="peekClose">✕</button>
+    <button class="tbtn" data-toast="Se abriría como página completa">↗ Abrir como página</button>
+    <div style="margin-left:auto;display:flex;gap:2px"><button class="tbtn" data-toast="Enlace copiado">Compartir</button><button class="tbtn">💬</button><button class="tbtn">···</button></div>
+  </div>
+  <div class="pk-body" id="peekBody"></div>
+</aside>
+<div class="pal" id="pal"><div class="palbox">
+  <input id="palInput" placeholder="Buscar páginas, clientes, tiendas o acciones…" autocomplete="off">
+  <div class="palist" id="palist"></div>
+  <div class="palfoot"><span>↑↓ moverse</span><span>↵ abrir</span><span>esc cerrar</span></div>
+</div></div>
+<div class="lb" id="lb"><button class="cl" id="lbClose">✕</button><img id="lbImg" alt=""></div>
+<div class="toast" id="toast"><span class="d"></span><span id="toastTxt"></span></div>
+<input type="file" id="filePick" accept="image/*" multiple hidden>
+
+<script>
+/* ==================== DATOS ==================== */
+const CLIENTES = [
+  {n:'Fecovita',        e:'🍷', cat:'Bodega',       col:'red',    plan:'Full',      cols:['#8E4557','#B06B7C','#6B2F3E'],
+   skus:[{c:'TR-M1',n:'Malbec 1 L',sug:5200},{c:'TR-C1',n:'Cabernet 1 L',sug:5400},{c:'TR-T1',n:'Tetra 1 L',sug:3900}]},
+  {n:'Cbse',     e:'🧉', cat:'Yerba mate',   col:'green',  plan:'Full',      cols:['#2F7F63','#5FA98A','#1F6B50'],
+   skus:[{c:'AM-05',n:'Amanda 500 g',sug:4300},{c:'AM-10',n:'Amanda 1 kg',sug:7800},{c:'AM-DE',n:'Despalada 1 kg',sug:8600}]},
+  {n:'Zucardi',    e:'🫒', cat:'Almacén',      col:'yellow', plan:'Estándar',  cols:['#CBAE6B','#A98F4E','#8C7638'],
+   skus:[{c:'NT-G9',n:'Girasol 900 ml',sug:3600},{c:'NT-M15',n:'Mezcla 1,5 L',sug:6100},{c:'NT-O5',n:'Oliva 500 ml',sug:14200}]},
+  {n:'Arroz 2 hermanos',      e:'🍚', cat:'Almacén',      col:'gray',   plan:'Estándar',  cols:['#8A9A92','#B0BDB6','#6E7C75'],
+   skus:[{c:'GL-O1',n:'Oro 1 kg',sug:3100},{c:'GL-I1',n:'Integral 1 kg',sug:3400},{c:'GL-P5',n:'Parboil 500 g',sug:1900}]},
+  {n:'Jugos Puro Sol',     e:'🧃', cat:'Bebidas',      col:'orange', plan:'Básico',    cols:['#D08770','#B5705B','#9A5B47'],
+   skus:[{c:'BG-N1',n:'Naranja 1 L',sug:2400},{c:'BG-M1',n:'Manzana 1 L',sug:2400},{c:'BG-MF',n:'Multifruta 200 ml',sug:900}]},
+  {n:'Café Cruzeriro ', e:'☕', cat:'Desayuno',     col:'brown',  plan:'Estándar',  cols:['#7A5642','#9E7259','#5C3F30'],
+   skus:[{c:'LV-M2',n:'Molido 250 g',sug:6900},{c:'LV-I1',n:'Instantáneo 170 g',sug:9400},{c:'LV-CP',n:'Cápsulas x10',sug:7200}]},
+];
+const STORES = [
+  {n:'Carrefour Catamarca',      cad:'Carrefour', col:'blue',   z:'Centro',          f:'Supermercado', ic:'🛒'},
+  {n:'Carrefour Córdoba',        cad:'Carrefour', col:'blue',   z:'Centro',          f:'Supermercado', ic:'🛒'},
+  {n:'Vea Luro',                 cad:'Vea',       col:'yellow', z:'Centro',          f:'Supermercado', ic:'🛒'},
+  {n:'Vea Edison',               cad:'Vea',       col:'yellow', z:'Puerto',          f:'Supermercado', ic:'🛒'},
+  {n:'Disco San Luis',           cad:'Disco',     col:'red',    z:'Centro',          f:'Supermercado', ic:'🛒'},
+  {n:'Disco Rawson',             cad:'Disco',     col:'red',    z:'Plaza Mitre',     f:'Supermercado', ic:'🛒'},
+  {n:'Disco J. B. Justo',        cad:'Disco',     col:'red',    z:'San Juan',        f:'Supermercado', ic:'🛒'},
+  {n:'Riadigos Rivadavia 3050',  cad:'Riadigos',  col:'green',  z:'Rivadavia 3050',  f:'Autoservicio', ic:'🛒'},
+  {n:'Riadigos Alvarado 1',      cad:'Riadigos',  col:'green',  z:'Alvarado 1',      f:'Autoservicio', ic:'🛒'},
+  {n:'Previley Luro 3804',       cad:'Previley',  col:'purple', z:'Luro 3804',       f:'Farmacia',     ic:'💊'},
+  {n:'Previley San Martín 5521', cad:'Previley',  col:'purple', z:'San Martín 5521', f:'Farmacia',     ic:'💊'},
+  {n:'Pharmagap Rivadavia 3201', cad:'Farmacias', col:'brown',  z:'Rivadavia 3201',  f:'Farmacia',     ic:'💊'},
+  {n:'Pharmadiet Güemes y San.', cad:'Farmacias', col:'brown',  z:'Güemes y San.',   f:'Farmacia',     ic:'💊'},
+  {n:'Oceanfarma Alem 3565',     cad:'Farmacias', col:'brown',  z:'Alem 3565',       f:'Farmacia',     ic:'💊'},
+  {n:'López Peña 2535',          cad:'Farmacias', col:'brown',  z:'López Peña 2535', f:'Farmacia',     ic:'💊'},
+];
+const EQUIPO = [
+  {n:'Juan Pérez',      ini:'JP', zona:'Centro y Puerto',       tiendas:6, plan:18, hechas:17, rep:16, fotos:44},
+  {n:'Silvina Acuña',   ini:'SA', zona:'Güemes y Los Troncos',  tiendas:4, plan:12, hechas:12, rep:12, fotos:31},
+  {n:'Darío Molina',    ini:'DM', zona:'Sur y Peralta Ramos',   tiendas:3, plan:9,  hechas:7,  rep:6,  fotos:15},
+  {n:'Noelia Ferrari',  ini:'NF', zona:'Zona norte',            tiendas:2, plan:6,  hechas:6,  rep:6,  fotos:18},
+];
+function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function rng(seed){let s=seed>>>0;return()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296}}
+const slug = s=>s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+const HOY = new Date(2026,7,23);
+const MES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const fLarga = d=>`${d.getDate()} de ${['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][d.getMonth()]}`;
+const fCorta = d=>`${String(d.getDate()).padStart(2,'0')} ${MES[d.getMonth()]}`;
+const money = v=>'$ '+Math.round(v).toLocaleString('es-AR');
+
+/* cada tienda atiende a un subconjunto de clientes */
+const data = STORES.map((s,idx)=>{
+  const r = rng(hash(s.n));
+  const cant = 2+Math.floor(r()*4);
+  const start = Math.floor(r()*CLIENTES.length);
+  const marcas = Array.from({length:cant},(_,k)=>{
+    const cl = CLIENTES[(start+k)%CLIENTES.length];
+    const items = cl.skus.map(sk=>{
+      let stock = Math.floor(r()*18);
+      if(r()<0.13) stock = 0;
+      const face = stock===0?0:Math.max(1,Math.min(4,Math.round(r()*4)));
+      const precio = Math.round(sk.sug*(0.94+r()*0.16)/50)*50;
+      return {...sk, col:cl.cols[cl.skus.indexOf(sk)%cl.cols.length], stock, face, precio,
+        oferta:r()<0.14&&stock>0, dev:(precio/sk.sug-1)*100};
+    });
+    const quiebres = items.filter(i=>i.stock===0).length;
+    const cumpl = Math.max(45, Math.min(100, Math.round(100 - quiebres*14 - r()*16)));
+    return {cl, items, quiebres, cumpl};
+  });
+  const quiebres = marcas.reduce((a,m)=>a+m.quiebres,0);
+  const cumpl = Math.round(marcas.reduce((a,m)=>a+m.cumpl,0)/marcas.length);
+  const devProm = marcas.flatMap(m=>m.items).reduce((a,b,_,arr)=>a+b.dev/arr.length,0);
+  const dias = 1+Math.floor(r()*11);
+  const last = new Date(HOY); last.setDate(HOY.getDate()-dias);
+  const next = new Date(HOY); next.setDate(HOY.getDate()+1+Math.floor(r()*6));
+  const st = quiebres>=3?'crit':(quiebres>=1||cumpl<75?'warn':'ok');
+  const rep = EQUIPO[Math.floor(r()*EQUIPO.length)];
+  return {...s, id:'s'+idx, slug:slug(s.n), marcas, quiebres, cumpl, devProm, last, next, dias, st, rep,
+    hora:(9+Math.floor(r()*9))+':'+String(Math.floor(r()*60)).padStart(2,'0'),
+    frecuencia:['2 visitas por semana','3 visitas por semana','1 visita por semana'][Math.floor(r()*3)]};
+});
+const ESTADO = {ok:{t:'Al día',c:'green'}, warn:{t:'Requiere atención',c:'yellow'}, crit:{t:'Crítica',c:'red'}};
+
+/* resumen por cliente */
+const clientes = CLIENTES.map(cl=>{
+  const filas = data.map(s=>({s, m:s.marcas.find(m=>m.cl.n===cl.n)})).filter(x=>x.m);
+  const quiebres = filas.reduce((a,x)=>a+x.m.quiebres,0);
+  const cumpl = filas.length?Math.round(filas.reduce((a,x)=>a+x.m.cumpl,0)/filas.length):0;
+  const skusTot = filas.length*cl.skus.length;
+  const r = rng(hash(cl.n+'sla'));
+  return {...cl, slug:slug(cl.n), filas, quiebres, cumpl, skusTot,
+    visitas:filas.length*2, reportes:filas.length*2-Math.floor(r()*2),
+    fotos:filas.length*3-Math.floor(r()*4), alta:new Date(2025,Math.floor(r()*12),1+Math.floor(r()*27))};
+});
+
+/* reportes de campo */
+const PLANT = [
+  {t:'Quiebre', c:'red', p:(s,m)=>`Faltante de ${m.items.find(i=>i.stock===0)?.n||'un SKU'} de ${m.cl.n}. El encargado dice que hay pedido pendiente de recepción. Dejé la cenefa puesta para no perder el espacio.`},
+  {t:'Precio', c:'orange', p:(s,m)=>`El cartel de góndola de ${m.cl.n} no coincide con la lista vigente. Saqué foto de la etiqueta y avisé en caja.`},
+  {t:'Planograma', c:'blue', p:(s,m)=>`${m.cl.n} perdió dos frentes contra el planograma. Recuperé uno acomodando desde el depósito.`},
+  {t:'Material POP', c:'purple', p:(s,m)=>`No queda cenefa ni stopper de ${m.cl.n}. Hay que mandar material para la próxima visita.`},
+  {t:'Sin novedad', c:'green', p:(s,m)=>`Góndola de ${m.cl.n} repuesta y frenteada. Sin faltantes al cierre de la visita.`},
+];
+const feed = [];
+data.forEach(s=>{
+  const r = rng(hash(s.n+'rep'));
+  s.marcas.slice(0,2).forEach((m,i)=>{
+    let tpl;
+    if(m.quiebres>0) tpl = PLANT[0];
+    else if(m.cumpl<75) tpl = PLANT[2];
+    else tpl = PLANT[Math.floor(r()*PLANT.length)];
+    const d = new Date(s.last); d.setDate(d.getDate()-i*2);
+    feed.push({store:s, cli:m.cl, tipo:tpl.t, col:tpl.c, texto:tpl.p(s,m), fecha:d, hora:s.hora, rep:s.rep});
+  });
+});
+feed.sort((a,b)=>b.fecha-a.fecha);
+
+/* cobertura nacional del servicio */
+const PROVS = [
+  ['Centro y Cuyo', [['Buenos Aires',128,'BA'],['Ciudad de Buenos Aires',64],['Córdoba',41],['Santa Fe',33],['Entre Ríos',11],['Mendoza',21],['San Juan',4],['San Luis',3],['La Pampa',2]]],
+  ['Norte',         [['Tucumán',12],['Salta',9],['Chaco',5],['Corrientes',5],['Misiones',4],['Santiago del Estero',3],['Jujuy',3],['Catamarca',1],['La Rioja',1],['Formosa',1]]],
+  ['Patagonia',     [['Neuquén',7],['Río Negro',6],['Chubut',2],['Santa Cruz',0],['Tierra del Fuego',0]]],
+];
+const totalNac = PROVS.flatMap(r=>r[1]).reduce((a,p)=>a+p[1],0);
+const maxProv = Math.max(...PROVS.flatMap(r=>r[1]).map(p=>p[1]));
+const conCob = PROVS.flatMap(r=>r[1]).filter(p=>p[1]>0).length;
+const totalProv = PROVS.flatMap(r=>r[1]).length;
+
+/* ==================== HELPERS ==================== */
+const $ = q=>document.querySelector(q);
+const esc = s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const totQuiebres = data.reduce((a,s)=>a+s.quiebres,0);
+const cumplGlobal = Math.round(data.reduce((a,s)=>a+s.cumpl,0)/data.length);
+const criticas = data.filter(s=>s.st==='crit'), atencion = data.filter(s=>s.st==='warn'), aldia = data.filter(s=>s.st==='ok');
+const visPlan = EQUIPO.reduce((a,e)=>a+e.plan,0), visHechas = EQUIPO.reduce((a,e)=>a+e.hechas,0);
+const repEnt = EQUIPO.reduce((a,e)=>a+e.rep,0), fotosTot = EQUIPO.reduce((a,e)=>a+e.fotos,0);
+const cumplVisitas = Math.round(visHechas/visPlan*100);
+
+let toastT;
+function toast(t){ $('#toastTxt').textContent=t; $('#toast').classList.add('on');
+  clearTimeout(toastT); toastT=setTimeout(()=>$('#toast').classList.remove('on'),2200); }
+
+/* ---- fotos locales ---- */
+let CARPETA = 'fotos/';
+const SUBIDAS = {}, FOTOS_OK = new Set();
+const TIPOS = ['Góndola principal','Punta o exhibición','Cartelería y precios'];
+const fotoKey = (s,n)=>`${s.slug}-${n}`;
+const fotoSrc = (s,n)=>SUBIDAS[fotoKey(s,n)] || (CARPETA+fotoKey(s,n)+'.jpg');
+const hayFoto = (s,n)=>!!SUBIDAS[fotoKey(s,n)] || FOTOS_OK.has(fotoKey(s,n));
+function imgOFallback(s,n,alto){
+  return `<img src="${fotoSrc(s,n)}" alt="Góndola de ${esc(s.n)}" style="width:100%;height:${alto}px;object-fit:cover;display:block"
+    onload="FOTOS_OK.add('${fotoKey(s,n)}')" onerror="this.style.display='none'">`;
+}
+let pickTarget = null;
+$('#filePick').addEventListener('change',e=>{
+  const files=[...e.target.files]; if(!files.length) return;
+  if(pickTarget){ SUBIDAS[pickTarget]=URL.createObjectURL(files[0]); FOTOS_OK.add(pickTarget); toast('Foto asignada a '+pickTarget); pickTarget=null; }
+  else{
+    let ok=0;
+    files.forEach(f=>{
+      const nm=f.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\.[a-z]+$/,'');
+      const st=data.find(s=>nm.includes(s.slug)); if(!st) return;
+      const m=nm.match(/-(\d)$/); const n=m?+m[1]:([1,2,3].find(k=>!SUBIDAS[fotoKey(st,k)])||1);
+      SUBIDAS[fotoKey(st,n)]=URL.createObjectURL(f); FOTOS_OK.add(fotoKey(st,n)); ok++;
+    });
+    toast(ok?`${ok} foto${ok>1?'s':''} vinculada${ok>1?'s':''}`:'Ningún nombre coincidió con una tienda');
+  }
+  e.target.value=''; render(PAGE);
+});
+const pedirFoto = k=>{ pickTarget=k; $('#filePick').removeAttribute('multiple'); $('#filePick').click(); };
+const pedirVarias = ()=>{ pickTarget=null; $('#filePick').setAttribute('multiple',''); $('#filePick').click(); };
+
+/* esquema de góndola de una marca */
+function planograma(marca,w,h,shelves){
+  const items = marca.items, per = Math.ceil(items.length/shelves);
+  const padX=14, padY=12, sh=(h-padY*2)/shelves;
+  let out=`<svg class="pg" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Góndola de ${esc(marca.cl.n)}"><rect width="${w}" height="${h}" fill="#F2F4F3"/>`;
+  let k=0;
+  for(let s=0;s<shelves;s++){
+    const y=padY+s*sh+sh-8;
+    out+=`<rect x="${padX-5}" y="${y}" width="${w-padX*2+10}" height="3" fill="#D5DBD6"/>`;
+    let x=padX;
+    items.slice(s*per,(s+1)*per).forEach(it=>{
+      const bw=16,gap=3;
+      if(it.stock===0){
+        out+=`<rect class="hole" x="${x}" y="${y-32}" width="${bw*2+gap}" height="32" fill="none" stroke="#B8503F" stroke-width="1.1" stroke-dasharray="3 2" rx="2"/><text x="${x+(bw*2+gap)/2}" y="${y-13}" font-family="Inter,sans-serif" font-size="7.5" fill="#B8503F" text-anchor="middle">HUECO</text>`;
+        x+=bw*2+gap+9; return;
+      }
+      const n=Math.max(1,it.face);
+      for(let i=0;i<n;i++){
+        const bh=25+(i%2?4:0);
+        out+=`<rect class="b" x="${x}" y="${y-bh}" width="${bw}" height="${bh}" rx="2" fill="${it.col}" style="animation-delay:${k*38}ms"/>`;
+        x+=bw+gap; k++;
+      }
+      out+=`<text x="${x-n*(bw+gap)}" y="${y+11}" font-family="Inter,sans-serif" font-size="7" fill="#9AA09A">${it.c}</text>`;
+      x+=9;
+    });
+  }
+  return out+'</svg>';
+}
+const planoTienda = (s,w,h,sh)=>planograma(s.marcas[0],w,h,sh);
+
+/* ==================== NAVEGACIÓN ==================== */
+const NAV = [
+  {k:'resumen',   t:'Resumen del servicio', i:'📊'},
+  {k:'clientes',  t:'Clientes',             i:'🤝', b:clientes.length},
+  {k:'tiendas',   t:'Tiendas atendidas',    i:'🏪', b:data.length},
+  {k:'reportes',  t:'Reportes de campo',    i:'📋', b:feed.length},
+  {k:'fotos',     t:'Fotos de góndola',     i:'📸'},
+  {k:'precios',   t:'Relevamiento de precios', i:'🏷️'},
+  {k:'quiebres',  t:'Quiebres y stock',     i:'📦', b:totQuiebres},
+  {k:'equipo',    t:'Equipo de repositores',i:'👥', b:EQUIPO.length},
+  {k:'cobertura', t:'Cobertura nacional',   i:'🇦🇷', b:totalNac},
+];
+$('#nav1').innerHTML = NAV.map(n=>`<button class="tnode" data-page="${n.k}">
+  <span class="ti">${n.i}</span><span class="tt hide-slim">${n.t}</span>
+  ${n.b?`<span class="bdg hide-slim">${n.b}</span>`:''}<span class="plus hide-slim">＋</span></button>`).join('');
+$('#favs').innerHTML = clientes.slice(0,3).map(c=>`<button class="tnode" data-cli="${c.slug}">
+  <span class="ti">${c.e}</span><span class="tt hide-slim">${esc(c.n)}</span>
+  <span class="bdg hide-slim">${c.filas.length}</span></button>`).join('');
+
+document.addEventListener('click',e=>{
+  const p=e.target.closest('[data-page]'); if(p) return render(p.dataset.page);
+  const s=e.target.closest('[data-store]'); if(s) return openTienda(s.dataset.store);
+  const c=e.target.closest('[data-cli]'); if(c) return openCliente(c.dataset.cli);
+  const t=e.target.closest('[data-toast]'); if(t) return toast(t.dataset.toast);
+  if(e.target.id==='cfgApply'){
+    let v=$('#cfgPath').value.trim(); if(v&&!v.endsWith('/')) v+='/';
+    CARPETA=v; FOTOS_OK.clear(); toast('Carpeta: '+(CARPETA||'(junto al HTML)')); render('fotos');
+  }
+  if(e.target.id==='cfgPick') pedirVarias();
+  if(e.target.id==='cfgList'){
+    const txt=data.flatMap(s=>[1,2,3].map(n=>`${s.slug}-${n}.jpg`)).join('\n');
+    navigator.clipboard?.writeText(txt).then(()=>toast('45 nombres copiados'),()=>toast('Copialos desde cada tarjeta'));
+  }
+});
+document.querySelectorAll('.gsec').forEach(g=>g.addEventListener('click',()=>{
+  const box=$('#'+g.dataset.group), closed=g.classList.toggle('closed');
+  if(closed){ box.style.height=box.scrollHeight+'px'; requestAnimationFrame(()=>box.style.height='0px'); }
+  else { box.style.height=box.scrollHeight+'px'; setTimeout(()=>box.style.height='auto',230); }
+}));
+$('#btnSlim').addEventListener('click',()=>{ const sb=$('#sidebar'); sb.classList.toggle('slim');
+  toast(sb.classList.contains('slim')?'Barra contraída':'Barra expandida'); });
+$('#menuBtn').addEventListener('click',()=>$('#sidebar').classList.toggle('open'));
+$('#tSync').addEventListener('click',()=>{ toast('Sincronizando con los repositores…'); setTimeout(()=>toast('Todo al día'),900); });
+
+/* paleta de comandos */
+const CMDS = [
+  ...NAV.map(n=>({i:n.i,t:n.t,m:'Página',go:()=>render(n.k)})),
+  ...clientes.map(c=>({i:c.e,t:c.n,m:'Cliente',go:()=>openCliente(c.slug)})),
+  ...data.map(s=>({i:s.ic,t:s.n,m:s.cad,go:()=>openTienda(s.id)})),
+  {i:'📁',t:'Vincular fotos del disco',m:'Acción',go:()=>{render('fotos');setTimeout(pedirVarias,250)}},
+  {i:'⟨⟩',t:'Contraer barra lateral',m:'Acción',go:()=>$('#btnSlim').click()},
+];
+let palSel=0, palRes=CMDS;
+const openPal=()=>{ $('#pal').classList.add('on'); $('#palInput').value=''; palFilter(''); setTimeout(()=>$('#palInput').focus(),40); };
+const closePal=()=>$('#pal').classList.remove('on');
+function palFilter(q){ const n=q.toLowerCase();
+  palRes=CMDS.filter(c=>c.t.toLowerCase().includes(n)||c.m.toLowerCase().includes(n)).slice(0,40); palSel=0; palDraw(); }
+function palDraw(){
+  $('#palist').innerHTML = palRes.map((c,i)=>`<button class="palrow ${i===palSel?'sel':''}" data-i="${i}">
+    <span class="i">${c.i}</span><span>${esc(c.t)}</span><span class="m">${esc(c.m)}</span></button>`).join('')
+    || '<div class="palrow" style="color:var(--light)">Sin resultados</div>';
+  $('#palist').querySelectorAll('[data-i]').forEach(b=>b.addEventListener('click',()=>{closePal();palRes[+b.dataset.i].go()}));
+}
+$('#btnPal').addEventListener('click',openPal);
+$('#palInput').addEventListener('input',e=>palFilter(e.target.value));
+document.addEventListener('keydown',e=>{
+  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){ e.preventDefault(); openPal(); return; }
+  if($('#pal').classList.contains('on')){
+    if(e.key==='Escape') closePal();
+    if(e.key==='ArrowDown'){e.preventDefault();palSel=Math.min(palSel+1,palRes.length-1);palDraw();}
+    if(e.key==='ArrowUp'){e.preventDefault();palSel=Math.max(palSel-1,0);palDraw();}
+    if(e.key==='Enter'&&palRes[palSel]){closePal();palRes[palSel].go();}
+  } else if(e.key==='Escape'){ closePeek(); $('#lb').classList.remove('on'); }
+});
+$('#pal').addEventListener('click',e=>{ if(e.target.id==='pal') closePal(); });
+
+/* ==================== RENDER ==================== */
+let PAGE='resumen', vista='tabla';
+function render(p){
+  PAGE=p;
+  document.querySelectorAll('[data-page]').forEach(n=>n.classList.toggle('on',n.dataset.page===p));
+  const meta=NAV.find(n=>n.k===p);
+  $('#crumbNow').textContent=meta.i+' '+meta.t;
+  $('#page').innerHTML=PAGES[p]();
+  $('#page').classList.remove('fadein'); void $('#page').offsetWidth; $('#page').classList.add('fadein');
+  $('#scroll').scrollTop=0; post($('#page'));
+}
+function post(el){
+  requestAnimationFrame(()=>{
+    el.querySelectorAll('[data-w]').forEach(b=>b.style.width=b.dataset.w+'%');
+    el.querySelectorAll('.stagger > *').forEach((n,i)=>n.style.animationDelay=Math.min(i*32,320)+'ms');
+    el.querySelectorAll('[data-to]').forEach(n=>{
+      const to=parseFloat(n.dataset.to), dec=+(n.dataset.dec||0), sg=n.dataset.sign==='1', t0=performance.now();
+      (function step(t){const q=Math.min(1,(t-t0)/850),e=1-Math.pow(1-q,3);
+        n.textContent=(sg&&to>=0?'+':'')+(to*e).toFixed(dec); if(q<1) requestAnimationFrame(step);})(t0);
+    });
+  });
+  el.querySelectorAll('[data-slot]').forEach(n=>n.addEventListener('click',()=>{
+    const [sid,num]=n.dataset.slot.split('|'); const s=data.find(x=>x.id===sid);
+    if(hayFoto(s,num)){ $('#lbImg').src=fotoSrc(s,num); $('#lb').classList.add('on'); }
+    else pedirFoto(fotoKey(s,num));
+  }));
+  el.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>{
+    vista=b.dataset.tab;
+    el.querySelectorAll('[data-tab]').forEach(x=>x.setAttribute('aria-selected',x.dataset.tab===vista));
+    moverInd(); drawDB();
+  }));
+  if(PAGE==='tiendas'){ drawDB(); moverInd(); }
+}
+function moverInd(){
+  const b=$('[data-tab][aria-selected="true"]'), ind=$('#vind'), head=$('#dbhead'); if(!b||!ind) return;
+  const r=b.getBoundingClientRect(), base=head.getBoundingClientRect();
+  ind.style.left=(r.left-base.left)+'px'; ind.style.width=r.width+'px';
+}
+window.addEventListener('resize',moverInd);
+const PAGES={};
+
+/* ---------- RESUMEN DEL SERVICIO ---------- */
+PAGES.resumen = ()=>`
+<div class="picon">📊</div>
+<h1 class="title">Resumen del <span class="accent">servicio</span></h1>
+<p class="lead">Cómo viene la operación de reposición de esta semana: visitas cumplidas, reportes entregados y estado de la góndola de cada marca en las 15 tiendas de Mar del Plata.</p>
+<div class="props">
+  <div class="prow"><span class="pkey">👤 Responsable comercial</span><span class="pval"><span class="person"><span class="av">MF</span>Marcos Ferreyra</span></span></div>
+  <div class="prow"><span class="pkey">👥 Equipo en calle</span><span class="pval">${EQUIPO.length} repositores · ${data.length} tiendas</span></div>
+  <div class="prow"><span class="pkey">🤝 Marcas atendidas</span><span class="pval">${clientes.map(c=>`<span class="pill ${c.col}">${c.e} ${c.n}</span>`).join(' ')}</span></div>
+  <div class="prow"><span class="pkey">📅 Semana</span><span class="pval">17 → 23 de agosto de 2026</span></div>
+</div>
+<div class="kpis">
+  <div class="kpi"><div class="k">Visitas cumplidas</div><div class="v"><span data-to="${cumplVisitas}">0</span>%</div><div class="m">${visHechas} de ${visPlan} planificadas</div></div>
+  <div class="kpi"><div class="k">Reportes entregados</div><div class="v"><span data-to="${repEnt}">0</span></div><div class="m">de ${visHechas} visitas</div></div>
+  <div class="kpi"><div class="k">Fotos cargadas</div><div class="v"><span data-to="${fotosTot}">0</span></div><div class="m">evidencia para las marcas</div></div>
+  <div class="kpi"><div class="k">Cumplimiento de planograma</div><div class="v ${cumplGlobal>=85?'pos':''}"><span data-to="${cumplGlobal}">0</span>%</div><div class="m">promedio de la cartera</div></div>
+</div>
+<div class="callout red"><span class="ce">🔴</span><div><b>${totQuiebres} quiebres detectados</b> en ${data.filter(s=>s.quiebres>0).length} tiendas. ${criticas.length} están en estado crítico: ${criticas.slice(0,3).map(s=>esc(s.n)).join(', ')}. Conviene avisar a las marcas antes del informe del viernes.</div></div>
+<div class="callout warn"><span class="ce">⚠️</span><div><b>${EQUIPO.filter(e=>e.hechas<e.plan).map(e=>e.n).join(' y ')}</b> quedó por debajo de las visitas comprometidas. Reasignar o justificar antes del cierre semanal.</div></div>
+<div class="callout brand"><span class="ce">📸</span><div style="flex:1"><b>Evidencia fotográfica al ${Math.round(fotosTot/(visHechas*3)*100)}%</b> del compromiso (3 fotos por visita).<span class="meter"><i data-w="${Math.round(fotosTot/(visHechas*3)*100)}"></i></span></div></div>
+<h2 class="h">Estado por marca</h2>
+<div class="stagger">${clientes.map(c=>`<button class="ccard" data-cli="${c.slug}">
+  <span class="em">${c.e}</span>
+  <span style="flex:1;min-width:0">
+    <span class="t" style="display:block">${esc(c.n)}</span>
+    <span class="m" style="display:block">${c.filas.length} tiendas · plan ${c.plan} · ${c.quiebres} quiebres</span>
+    <span class="meter" style="max-width:340px"><i data-w="${c.cumpl}"></i></span>
+  </span>
+  <span class="r"><span class="big ${c.cumpl>=85?'pos':c.cumpl<70?'neg':''}">${c.cumpl}%</span><span class="lbl">planograma</span></span>
+</button>`).join('')}</div>
+<h2 class="h">Prioridades de la semana</h2>
+<div class="callout"><span class="ce">1️⃣</span><div>Reponer y fotografiar los quiebres de ${criticas.slice(0,2).map(s=>esc(s.n)).join(' y ')}.</div></div>
+<div class="callout"><span class="ce">2️⃣</span><div>Cerrar los reportes faltantes para llegar al 100% del compromiso con las marcas.</div></div>
+<div class="callout"><span class="ce">3️⃣</span><div>Enviar el informe consolidado de ${clientes[0].n} y ${clientes[1].n}, que son los planes Full.</div></div>`;
+
+/* ---------- CLIENTES ---------- */
+PAGES.clientes = ()=>`
+<div class="picon">🤝</div>
+<h1 class="title">Clientes</h1>
+<p class="lead">Marcas que contratan el servicio de reposición. Cada una tiene su plan, sus tiendas asignadas y su nivel de cumplimiento en góndola.</p>
+<table><thead><tr>
+  <th style="width:26%"><span class="ph">Aa</span>Cliente</th><th><span class="ph">◉</span>Plan</th>
+  <th><span class="ph">#</span>Tiendas</th><th><span class="ph">#</span>SKU</th>
+  <th><span class="ph">#</span>Quiebres</th><th class="opt"><span class="ph">#</span>Reportes</th>
+  <th><span class="ph">#</span>Planograma</th></tr></thead><tbody>
+${clientes.map(c=>`<tr class="clickable" data-cli="${c.slug}">
+  <td class="tt"><span class="row-title"><span>${c.e}</span><span>${esc(c.n)}</span><span class="open">ABRIR</span></span></td>
+  <td><span class="pill ${c.plan==='Full'?'brand':'ghost'}">${c.plan}</span></td>
+  <td class="num">${c.filas.length}</td><td class="num">${c.skusTot}</td>
+  <td class="num" ${c.quiebres?'style="color:var(--t-red)"':''}>${c.quiebres}</td>
+  <td class="num opt">${c.reportes}</td>
+  <td class="num ${c.cumpl>=85?'pos':c.cumpl<70?'neg':''}">${c.cumpl}%</td></tr>`).join('')}
+</tbody></table>
+<button class="addrow" data-toast="Alta de cliente">＋ Nuevo cliente</button>
+<div class="dbfoot">${clientes.length} marcas · ${clientes.reduce((a,c)=>a+c.filas.length,0)} vínculos marca × tienda</div>
+<h2 class="h">Qué incluye cada plan</h2>
+<div class="callout brand"><span class="ce">🟢</span><div><b>Full.</b> Tres visitas semanales, reporte por visita, foto de góndola, punta y cartelería, control de precios y alerta de quiebre en el día.</div></div>
+<div class="callout"><span class="ce">⚪</span><div><b>Estándar.</b> Dos visitas semanales, reporte por visita y foto de góndola principal.</div></div>
+<div class="callout"><span class="ce">⚪</span><div><b>Básico.</b> Una visita semanal con reporte y relevamiento de stock.</div></div>`;
+
+/* ---------- TIENDAS ---------- */
+PAGES.tiendas = ()=>`
+<div class="picon">🏪</div>
+<h1 class="title">Tiendas atendidas</h1>
+<p class="lead">Los 15 puntos de venta donde el equipo presta servicio, con las marcas que se relevan en cada uno.</p>
+<div class="dbhead" id="dbhead">
+  <button class="vtab" data-tab="tabla" aria-selected="${vista==='tabla'}">Tabla</button>
+  <button class="vtab" data-tab="tablero" aria-selected="${vista==='tablero'}">Tablero por estado</button>
+  <button class="vtab" data-tab="galeria" aria-selected="${vista==='galeria'}">Galería de góndolas</button>
+  <span class="vind" id="vind"></span>
+  <div class="dbtools"><button class="tbtn" data-toast="Filtros">Filtrar</button>
+    <button class="tbtn" data-toast="Orden">Ordenar</button>
+    <button class="new" data-toast="Alta de tienda">Nueva ＋</button></div>
+</div>
+<div id="dbview"></div>`;
+
+function drawDB(){
+  const el=$('#dbview'); if(!el) return;
+  if(vista==='tabla'){
+    el.innerHTML=`<table><thead><tr>
+      <th style="width:27%"><span class="ph">Aa</span>Tienda</th><th><span class="ph">◉</span>Cadena</th>
+      <th><span class="ph">◉</span>Estado</th><th><span class="ph">#</span>Marcas</th>
+      <th><span class="ph">#</span>Quiebres</th><th class="opt"><span class="ph">#</span>Planograma</th>
+      <th class="opt"><span class="ph">👤</span>Repositor</th><th class="opt"><span class="ph">📅</span>Última visita</th>
+      </tr></thead><tbody>
+    ${data.map(s=>`<tr class="clickable" data-store="${s.id}">
+      <td class="tt"><span class="row-title"><span>${s.ic}</span><span>${esc(s.n)}</span><span class="open">ABRIR</span></span></td>
+      <td><span class="pill ${s.col}">${s.cad}</span></td>
+      <td><span class="pill ${ESTADO[s.st].c}">${ESTADO[s.st].t}</span></td>
+      <td class="num">${s.marcas.length}</td>
+      <td class="num" ${s.quiebres?'style="color:var(--t-red)"':''}>${s.quiebres}</td>
+      <td class="num opt ${s.cumpl>=85?'pos':s.cumpl<70?'neg':''}">${s.cumpl}%</td>
+      <td class="opt"><span class="person"><span class="av">${s.rep.ini}</span>${s.rep.n.split(' ')[0]}</span></td>
+      <td class="opt">${fCorta(s.last)}</td></tr>`).join('')}
+    </tbody></table>
+    <button class="addrow" data-toast="Nueva fila">＋ Nueva tienda</button>
+    <div class="dbfoot">Cuenta ${data.length} · Quiebres ${totQuiebres} · Planograma promedio ${cumplGlobal}%</div>`;
+  }
+  if(vista==='tablero'){
+    const col=(k,list)=>`<div class="bcol"><div class="bcolwrap">
+      <h4><span class="pill ${ESTADO[k].c}">${ESTADO[k].t}</span><span class="cnt">${list.length}</span></h4>
+      ${list.map((s,i)=>`<button class="bcard" data-store="${s.id}" style="animation:fadeUp .3s var(--ease) both;animation-delay:${i*40}ms">
+        <span class="t"><span>${s.ic}</span><span>${esc(s.n)}</span></span><span class="pill ${s.col}">${s.cad}</span>
+        <span class="m" style="display:block">${s.marcas.length} marcas · ${s.quiebres} quiebres · ${s.cumpl}%</span></button>`).join('')}
+      </div></div>`;
+    el.innerHTML=`<div class="board">${col('crit',criticas)}${col('warn',atencion)}${col('ok',aldia)}</div>`;
+  }
+  if(vista==='galeria'){
+    el.innerHTML=`<div class="gal">${data.map((s,i)=>`<button class="gcard" data-store="${s.id}" style="animation:fadeUp .34s var(--ease) both;animation-delay:${i*35}ms">
+      <span class="cv">${hayFoto(s,1)?`<span class="tagreal">FOTO REAL</span>${imgOFallback(s,1,132)}`:planoTienda(s,300,120,1)}</span>
+      <span class="b"><span class="t">${s.ic} ${esc(s.n)}</span><span class="pill ${ESTADO[s.st].c}">${ESTADO[s.st].t}</span>
+      <span class="m">${fCorta(s.last)} · ${[1,2,3].filter(n=>hayFoto(s,n)).length}/3 fotos · ${s.marcas.length} marcas</span></span></button>`).join('')}</div>`;
+  }
+  post(el);
+}
+
+/* ---------- REPORTES ---------- */
+PAGES.reportes = ()=>`
+<div class="picon">📋</div>
+<h1 class="title">Reportes de campo</h1>
+<p class="lead">Todo lo que el equipo carga en la calle. Es la materia prima del informe que reciben las marcas.</p>
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+  ${['Todos','Quiebre','Precio','Planograma','Material POP','Sin novedad'].map((t,i)=>`<span class="pill ${i===0?'brand':'ghost'}">${t}</span>`).join('')}
+</div>
+<div class="stagger">${feed.map(f=>`<div class="rep">
+  <span class="av">${f.rep.ini}</span>
+  <div><div class="h"><span class="who">${esc(f.rep.n)}</span><span class="pill ${f.col}">${f.tipo}</span>
+    <span class="pill ${f.cli.col}">${f.cli.e} ${esc(f.cli.n)}</span><span class="when">${fCorta(f.fecha)} · ${f.hora}</span></div>
+  <p>${esc(f.texto)}</p>
+  <div class="st">en <a data-store="${f.store.id}">${f.store.ic} ${esc(f.store.n)}</a></div></div>
+</div>`).join('')}</div>`;
+
+/* ---------- FOTOS ---------- */
+PAGES.fotos = ()=>{
+  const conFoto=data.filter(s=>hayFoto(s,1)).length;
+  return `
+<div class="picon">📸</div>
+<h1 class="title">Fotos de góndola</h1>
+<p class="lead">La evidencia visual que se adjunta al informe de cada marca. Las imágenes se leen de una carpeta de tu disco; donde no hay foto, se muestra el esquema de exhibición.</p>
+<div class="cfg">
+  <div style="font-weight:600;font-size:15px">📁 De dónde salen las fotos</div>
+  <p class="p" style="color:var(--muted);margin-top:6px"><b>Opción 1 — carpeta fija.</b> Guardá este HTML y creá al lado una carpeta <code>fotos/</code>. Nombrá cada archivo con el código de la tienda: <code>carrefour-catamarca-1.jpg</code> (1 góndola principal, 2 punta, 3 cartelería). Al abrir el archivo aparecen solas.</p>
+  <div class="row"><input class="inp" id="cfgPath" value="${CARPETA}" placeholder="fotos/">
+    <button class="btnb" id="cfgApply">Aplicar carpeta</button>
+    <button class="btng" id="cfgList">Copiar nombres de archivo</button></div>
+  <p class="p" style="color:var(--muted);margin-top:14px"><b>Opción 2 — elegirlas ahora.</b> Seleccioná varias imágenes y se vinculan solas si el nombre contiene el código de la tienda. Sirve para probar, pero se pierde al recargar.</p>
+  <div class="row"><button class="btnb" id="cfgPick">Elegir fotos de mi disco</button>
+    <span style="font-size:12.5px;color:var(--light)">${conFoto} de ${data.length} tiendas con foto cargada</span></div>
+</div>
+<h2 class="h">Tiendas</h2>
+<div class="stagger">${data.map(s=>`<div style="margin-bottom:22px">
+  <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap">
+    <span style="font-size:17px">${s.ic}</span><b style="font-size:15px">${esc(s.n)}</b>
+    <span class="pill ${ESTADO[s.st].c}">${ESTADO[s.st].t}</span>
+    ${s.marcas.slice(0,3).map(m=>`<span class="pill ${m.cl.col}">${m.cl.e}</span>`).join('')}
+    <span style="margin-left:auto;font-size:12px;color:var(--light)"><code>${s.slug}-1.jpg</code></span>
+  </div>
+  <div class="slots">${[1,2,3].map(n=>`<button class="slot" data-slot="${s.id}|${n}">
+    <span class="im">${hayFoto(s,n)?imgOFallback(s,n,112):`<span class="ph"><b>＋</b>Sin foto<br><code>${s.slug}-${n}.jpg</code></span>`}</span>
+    <span class="cap"><b>${TIPOS[n-1]}</b>${hayFoto(s,n)?'Tocá para ampliar':'Tocá para elegir del disco'}</span></button>`).join('')}</div>
+</div>`).join('')}</div>`;
+};
+
+/* ---------- PRECIOS ---------- */
+PAGES.precios = ()=>{
+  const filas=[];
+  clientes.forEach(c=>c.skus.forEach(sk=>{
+    const ps=c.filas.flatMap(f=>f.m.items.filter(i=>i.c===sk.c).map(i=>i.precio));
+    if(!ps.length) return;
+    const prom=ps.reduce((a,b)=>a+b,0)/ps.length;
+    filas.push({cli:c, sk, prom, min:Math.min(...ps), max:Math.max(...ps), dev:(prom/sk.sug-1)*100, n:ps.length});
+  }));
+  const desvProm=filas.reduce((a,f)=>a+f.dev,0)/filas.length;
+  return `
+<div class="picon">🏷️</div>
+<h1 class="title">Relevamiento de precios</h1>
+<p class="lead">Precio de góndola relevado por el equipo contra el sugerido de cada marca. Es uno de los entregables del servicio.</p>
+<div class="kpis">
+  <div class="kpi"><div class="k">Desvío promedio</div><div class="v ${desvProm>0?'neg':'pos'}"><span data-to="${desvProm.toFixed(1)}" data-dec="1" data-sign="1">0</span>%</div><div class="m">toda la cartera</div></div>
+  <div class="kpi"><div class="k">SKU relevados</div><div class="v"><span data-to="${filas.reduce((a,f)=>a+f.n,0)}">0</span></div><div class="m">precios tomados</div></div>
+  <div class="kpi"><div class="k">Fuera de banda</div><div class="v">${filas.filter(f=>Math.abs(f.dev)>7).length}</div><div class="m">más de 7% de desvío</div></div>
+  <div class="kpi"><div class="k">Con oferta</div><div class="v">${data.flatMap(s=>s.marcas).flatMap(m=>m.items).filter(i=>i.oferta).length}</div><div class="m">combinaciones activas</div></div>
+</div>
+<h2 class="h">Por producto</h2>
+<table><thead><tr><th style="width:16%"><span class="ph">◉</span>Marca</th><th style="width:26%"><span class="ph">Aa</span>Producto</th>
+<th><span class="ph">#</span>Sugerido</th><th><span class="ph">#</span>Promedio</th>
+<th class="opt"><span class="ph">#</span>Mín</th><th class="opt"><span class="ph">#</span>Máx</th>
+<th><span class="ph">#</span>Desvío</th></tr></thead><tbody>
+${filas.map(f=>`<tr><td><span class="pill ${f.cli.col}">${f.cli.e} ${esc(f.cli.n)}</span></td>
+<td class="tt"><span class="row-title"><span>${f.sk.n}</span></span><span style="color:var(--light);font-size:12px">${f.sk.c} · ${f.n} tiendas</span></td>
+<td class="num">${money(f.sk.sug)}</td><td class="num">${money(f.prom)}</td>
+<td class="num opt">${money(f.min)}</td><td class="num opt">${money(f.max)}</td>
+<td class="num ${f.dev>2?'neg':f.dev<-2?'pos':''}">${f.dev>=0?'+':''}${f.dev.toFixed(1)}%</td></tr>`).join('')}
+</tbody></table>`;
+};
+
+/* ---------- QUIEBRES Y STOCK ---------- */
+PAGES.quiebres = ()=>{
+  const cell=(m)=>{
+    if(!m) return {bg:'', t:'—', na:true};
+    if(m.quiebres>=2) return {bg:'#B8503F', t:m.quiebres};
+    if(m.quiebres===1) return {bg:'#C89A3C', t:'1'};
+    if(m.cumpl<80) return {bg:'#5FA98A', t:'✓'};
+    return {bg:'#0F7A55', t:'✓'};
+  };
+  return `
+<div class="picon">📦</div>
+<h1 class="title">Quiebres y stock</h1>
+<p class="lead">Dónde falta producto. Cada celda es una marca en una tienda: el número indica cuántos SKU están en cero.</p>
+<div class="callout red"><span class="ce">🔴</span><div><b>${totQuiebres} quiebres abiertos</b> en ${data.filter(s=>s.quiebres>0).length} de ${data.length} tiendas. El promedio de cumplimiento de planograma es ${cumplGlobal}%.</div></div>
+<h2 class="h">Matriz tienda × marca</h2>
+<table class="heat"><thead><tr><th class="l">Tienda</th>${CLIENTES.map(c=>`<th title="${c.n}">${c.e}</th>`).join('')}<th>Σ</th></tr></thead><tbody>
+${data.map(s=>`<tr><td class="l" style="font-size:13px;cursor:pointer" data-store="${s.id}">${s.ic} ${esc(s.n)}</td>
+${CLIENTES.map(c=>{const m=s.marcas.find(x=>x.cl.n===c.n); const q=cell(m);
+  return `<td><div class="cell ${q.na?'na':''}" style="${q.na?'':'background:'+q.bg}" title="${c.n}${m?': '+m.quiebres+' quiebres · '+m.cumpl+'% planograma':' — no se atiende acá'}">${q.t}</div></td>`}).join('')}
+<td><div class="cell na">${s.quiebres}</div></td></tr>`).join('')}
+</tbody></table>
+<div class="dbfoot">Verde sin faltantes · Ámbar un SKU en cero · Rojo dos o más · Gris la marca no se atiende en esa tienda</div>
+<h2 class="h">Quiebres por marca</h2>
+<div class="stagger">${[...clientes].sort((a,b)=>b.quiebres-a.quiebres).map(c=>`<div class="prov">
+  <span class="bn">${c.e} ${esc(c.n)}</span>
+  <span class="bt"><span class="bf" data-w="${Math.round(c.quiebres/Math.max(1,Math.max(...clientes.map(x=>x.quiebres)))*100)}"></span></span>
+  <span class="bv ${c.quiebres?'neg':''}">${c.quiebres}</span><span class="bs">${c.filas.length} tiendas</span></div>`).join('')}</div>`;
+};
+
+/* ---------- EQUIPO ---------- */
+PAGES.equipo = ()=>`
+<div class="picon">👥</div>
+<h1 class="title">Equipo de repositores</h1>
+<p class="lead">Quién cubre cada zona y cómo viene el cumplimiento de visitas, reportes y evidencia fotográfica.</p>
+<div class="kpis">
+  <div class="kpi"><div class="k">Repositores</div><div class="v">${EQUIPO.length}</div><div class="m">en ${data.length} tiendas</div></div>
+  <div class="kpi"><div class="k">Visitas cumplidas</div><div class="v ${cumplVisitas>=90?'pos':''}"><span data-to="${cumplVisitas}">0</span>%</div><div class="m">${visHechas} de ${visPlan}</div></div>
+  <div class="kpi"><div class="k">Reportes</div><div class="v">${repEnt}</div><div class="m">${Math.round(repEnt/visHechas*100)}% de las visitas</div></div>
+  <div class="kpi"><div class="k">Fotos</div><div class="v">${fotosTot}</div><div class="m">${(fotosTot/visHechas).toFixed(1)} por visita</div></div>
+</div>
+<h2 class="h">Por persona</h2>
+<table><thead><tr><th style="width:24%"><span class="ph">Aa</span>Repositor</th><th><span class="ph">◉</span>Zona</th>
+<th><span class="ph">#</span>Tiendas</th><th><span class="ph">#</span>Visitas</th>
+<th class="opt"><span class="ph">#</span>Reportes</th><th class="opt"><span class="ph">#</span>Fotos</th>
+<th><span class="ph">#</span>Cumplimiento</th></tr></thead><tbody>
+${EQUIPO.map(e=>{const c=Math.round(e.hechas/e.plan*100);return `<tr>
+  <td class="tt"><span class="row-title"><span class="person"><span class="av g">${e.ini}</span>${esc(e.n)}</span></span></td>
+  <td><span class="pill ghost">${esc(e.zona)}</span></td>
+  <td class="num">${e.tiendas}</td><td class="num">${e.hechas}/${e.plan}</td>
+  <td class="num opt">${e.rep}</td><td class="num opt">${e.fotos}</td>
+  <td class="num ${c>=100?'pos':c<85?'neg':''}">${c}%</td></tr>`}).join('')}
+</tbody></table>
+<h2 class="h">Carga de trabajo</h2>
+<div class="stagger">${EQUIPO.map(e=>`<div class="prov">
+  <span class="bn"><span class="person"><span class="av g">${e.ini}</span>${e.n.split(' ')[0]}</span></span>
+  <span class="bt"><span class="bf ${e.hechas>=e.plan?'mine':''}" data-w="${Math.round(e.hechas/e.plan*100)}"></span></span>
+  <span class="bv">${e.hechas}/${e.plan}</span><span class="bs">visitas</span></div>`).join('')}</div>
+<div class="callout warn"><span class="ce">⚠️</span><div><b>Darío Molina</b> viene con 7 de 9 visitas y 6 reportes. Conviene revisar si la zona sur necesita una persona más o reordenar la frecuencia.</div></div>`;
+
+/* ---------- COBERTURA NACIONAL ---------- */
+PAGES.cobertura = ()=>`
+<div class="picon">🇦🇷</div>
+<h1 class="title">Cobertura nacional</h1>
+<p class="lead">Dónde puede prestar servicio la agencia hoy. Es el argumento comercial para sumar marcas nuevas o extender un contrato a más plazas.</p>
+<div class="kpis">
+  <div class="kpi"><div class="k">Tiendas alcanzadas</div><div class="v"><span data-to="${totalNac}">0</span></div><div class="m">en todo el país</div></div>
+  <div class="kpi"><div class="k">Provincias</div><div class="v">${conCob}<span style="font-size:16px;color:var(--muted)">/${totalProv}</span></div><div class="m">con al menos un punto</div></div>
+  <div class="kpi"><div class="k">Cadenas</div><div class="v">14</div><div class="m">6 nacionales, 8 regionales</div></div>
+  <div class="kpi"><div class="k">Repositores</div><div class="v">48</div><div class="m">en 22 rutas</div></div>
+</div>
+<div class="callout brand"><span class="ce">📍</span><div><b>Tu plaza:</b> Mar del Plata, 15 de las ${PROVS[0][1][0][1]} tiendas de Buenos Aires, con ${clientes.length} marcas activas y ${EQUIPO.length} repositores.</div></div>
+${PROVS.map(([reg,list])=>{
+  const tot=list.reduce((a,p)=>a+p[1],0);
+  return `<div class="regh">${reg}<span class="n">${tot} tiendas · ${Math.round(tot/totalNac*100)}%</span></div>
+  <div class="stagger">${[...list].sort((a,b)=>b[1]-a[1]).map(p=>`<div class="prov ${p[1]===0?'zero':''}">
+    <span class="bn">${p[2]==='BA'?'⭐ ':''}${p[0]}</span>
+    <span class="bt"><span class="bf ${p[2]==='BA'?'mine':''}" data-w="${Math.round(p[1]/maxProv*100)}"></span></span>
+    <span class="bv">${p[1]||'—'}</span><span class="bs">${p[1]?Math.round(p[1]/totalNac*100)+'%':'sin cobertura'}</span></div>`).join('')}</div>`;
+}).join('')}
+<hr class="div">
+<h2 class="h">Oportunidades</h2>
+<div class="callout warn"><span class="ce">🎯</span><div><b>Santa Cruz y Tierra del Fuego</b> siguen sin operación propia. Hay dos cadenas regionales identificadas para la próxima ronda comercial.</div></div>
+<div class="callout"><span class="ce">📈</span><div>Catamarca, La Rioja y Formosa tienen un solo punto cada una: son las plazas donde una marca nueva permitiría abrir ruta con poco costo fijo.</div></div>`;
+
+/* ==================== PANELES ==================== */
+function openTienda(id){
+  const s=data.find(x=>x.id===id); if(!s) return;
+  const reps=feed.filter(f=>f.store.id===s.id);
+  $('#peekBody').innerHTML=`
+    <div class="picon">${s.ic}</div><h1>${esc(s.n)}</h1>
+    <div class="props">
+      <div class="prow"><span class="pkey">◉ Cadena</span><span class="pval"><span class="pill ${s.col}">${s.cad}</span> <span class="pill">${s.f}</span></span></div>
+      <div class="prow"><span class="pkey">◉ Estado</span><span class="pval"><span class="pill ${ESTADO[s.st].c}">${ESTADO[s.st].t}</span></span></div>
+      <div class="prow"><span class="pkey">📍 Dirección</span><span class="pval">${esc(s.z)} · Mar del Plata</span></div>
+      <div class="prow"><span class="pkey">🔁 Frecuencia</span><span class="pval">${s.frecuencia}</span></div>
+      <div class="prow"><span class="pkey">👤 Repositor asignado</span><span class="pval"><span class="person"><span class="av g">${s.rep.ini}</span>${esc(s.rep.n)}</span> · ${esc(s.rep.zona)}</span></div>
+      <div class="prow"><span class="pkey">📅 Última visita</span><span class="pval">${fLarga(s.last)}, ${s.hora} · hace ${s.dias} ${s.dias===1?'día':'días'}</span></div>
+      <div class="prow"><span class="pkey">📅 Próxima visita</span><span class="pval">${fLarga(s.next)}</span></div>
+      <div class="prow"><span class="pkey"># Planograma</span><span class="pval num ${s.cumpl>=85?'pos':s.cumpl<70?'neg':''}">${s.cumpl}%</span></div>
+    </div>
+    ${s.quiebres
+      ? `<div class="callout red"><span class="ce">🔴</span><div><b>${s.quiebres} SKU sin stock</b> en ${s.marcas.filter(m=>m.quiebres).length} marcas: ${s.marcas.filter(m=>m.quiebres).map(m=>m.cl.n).join(', ')}.</div></div>`
+      : `<div class="callout brand"><span class="ce">✅</span><div>Sin quiebres en la última visita. Las ${s.marcas.length} marcas están completas en góndola.</div></div>`}
+    <h3 class="h3">📸 Fotos de la última visita</h3>
+    <div class="slots">${[1,2,3].map(n=>`<button class="slot" data-slot="${s.id}|${n}">
+      <span class="im">${hayFoto(s,n)?imgOFallback(s,n,112):(n===1?planoTienda(s,300,112,1):`<span class="ph"><b>＋</b>Sin foto<br><code>${s.slug}-${n}.jpg</code></span>`)}</span>
+      <span class="cap"><b>${TIPOS[n-1]}</b>${hayFoto(s,n)?'Tocá para ampliar':'Tocá para elegir del disco'}</span></button>`).join('')}</div>
+    <h3 class="h3">🤝 Marcas relevadas acá</h3>
+    ${s.marcas.map(m=>`<div style="border:1px solid var(--border);border-radius:10px;padding:13px;margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:9px;margin-bottom:8px">
+        <span style="font-size:17px">${m.cl.e}</span><b>${esc(m.cl.n)}</b>
+        <span class="pill ${m.cl.plan==='Full'?'brand':'ghost'}">${m.cl.plan}</span>
+        <span style="margin-left:auto" class="pill ${m.cumpl>=85?'green':m.cumpl<70?'red':'yellow'}">${m.cumpl}% planograma</span>
+      </div>
+      <div style="border-radius:7px;overflow:hidden;border:1px solid var(--line)">${planograma(m,600,110,1)}</div>
+      <table style="margin-top:8px"><tbody>
+      ${m.items.map(it=>`<tr><td class="tt" style="width:46%"><span class="row-title"><span style="width:9px;height:9px;border-radius:3px;background:${it.col};display:inline-block;flex:0 0 9px"></span><span>${it.n}</span></span></td>
+        <td class="num">${it.stock===0?'<span class="pill red">Quiebre</span>':it.stock<=3?`<span class="pill yellow">${it.stock} u.</span>`:it.stock+' u.'}</td>
+        <td class="num">${money(it.precio)}</td>
+        <td class="num ${it.dev>2?'neg':it.dev<-2?'pos':''}">${it.dev>=0?'+':''}${it.dev.toFixed(1)}%</td></tr>`).join('')}
+      </tbody></table>
+    </div>`).join('')}
+    <h3 class="h3">📋 Reportes en esta tienda</h3>
+    ${reps.map(f=>`<div class="rep"><span class="av">${f.rep.ini}</span><div>
+      <div class="h"><span class="who">${esc(f.rep.n)}</span><span class="pill ${f.col}">${f.tipo}</span><span class="pill ${f.cli.col}">${f.cli.e}</span><span class="when">${fCorta(f.fecha)} · ${f.hora}</span></div>
+      <p>${esc(f.texto)}</p></div></div>`).join('') || '<p class="p" style="color:var(--light)">Sin reportes cargados.</p>'}`;
+  abrirPeek();
+}
+function openCliente(sl){
+  const c=clientes.find(x=>x.slug===sl); if(!c) return;
+  $('#peekBody').innerHTML=`
+    <div class="picon">${c.e}</div><h1>${esc(c.n)}</h1>
+    <div class="props">
+      <div class="prow"><span class="pkey">◉ Rubro</span><span class="pval"><span class="pill ${c.col}">${esc(c.cat)}</span></span></div>
+      <div class="prow"><span class="pkey">◉ Plan contratado</span><span class="pval"><span class="pill ${c.plan==='Full'?'brand':'ghost'}">${c.plan}</span></span></div>
+      <div class="prow"><span class="pkey">📅 Cliente desde</span><span class="pval">${fLarga(c.alta)} de ${c.alta.getFullYear()}</span></div>
+      <div class="prow"><span class="pkey">🏪 Tiendas asignadas</span><span class="pval">${c.filas.length} de ${data.length}</span></div>
+      <div class="prow"><span class="pkey">📦 SKU relevados</span><span class="pval">${c.skusTot} (${c.skus.length} por tienda)</span></div>
+      <div class="prow"><span class="pkey">📋 Reportes del mes</span><span class="pval">${c.reportes} · ${c.fotos} fotos</span></div>
+      <div class="prow"><span class="pkey"># Cumplimiento</span><span class="pval num ${c.cumpl>=85?'pos':c.cumpl<70?'neg':''}">${c.cumpl}% de planograma</span></div>
+    </div>
+    ${c.quiebres
+      ? `<div class="callout red"><span class="ce">🔴</span><div><b>${c.quiebres} SKU sin stock</b> repartidos en ${c.filas.filter(f=>f.m.quiebres).length} tiendas. Se informa en el reporte semanal.</div></div>`
+      : `<div class="callout brand"><span class="ce">✅</span><div>Sin quiebres abiertos en toda la plaza.</div></div>`}
+    <h3 class="h3">📦 Productos bajo servicio</h3>
+    <table><thead><tr><th style="width:48%"><span class="ph">Aa</span>Producto</th><th><span class="ph">#</span>Sugerido</th><th><span class="ph">#</span>En quiebre</th></tr></thead><tbody>
+    ${c.skus.map(sk=>{const q=c.filas.filter(f=>f.m.items.find(i=>i.c===sk.c)?.stock===0).length;
+      return `<tr><td class="tt"><span class="row-title"><span>${sk.n}</span></span><span style="color:var(--light);font-size:12px">${sk.c}</span></td>
+      <td class="num">${money(sk.sug)}</td><td class="num ${q?'neg':''}">${q} tiendas</td></tr>`}).join('')}
+    </tbody></table>
+    <h3 class="h3">🏪 Tienda por tienda</h3>
+    ${c.filas.map(f=>`<button class="ccard" data-store="${f.s.id}">
+      <span class="em">${f.s.ic}</span>
+      <span style="flex:1;min-width:0"><span class="t" style="display:block">${esc(f.s.n)}</span>
+      <span class="m" style="display:block">${f.s.cad} · ${f.m.quiebres} quiebres · ${f.s.rep.n.split(' ')[0]} · ${fCorta(f.s.last)}</span>
+      <span class="meter" style="max-width:300px"><i data-w="${f.m.cumpl}"></i></span></span>
+      <span class="r"><span class="big ${f.m.cumpl>=85?'pos':f.m.cumpl<70?'neg':''}">${f.m.cumpl}%</span><span class="lbl">góndola</span></span>
+    </button>`).join('')}`;
+  abrirPeek();
+}
+function abrirPeek(){
+  [...$('#peekBody').children].forEach((n,k)=>n.style.animationDelay=Math.min(k*30,300)+'ms');
+  $('#peek').classList.add('on'); $('#peek').setAttribute('aria-hidden','false');
+  $('#scrim').classList.add('on'); $('#peekBody').scrollTop=0; post($('#peekBody'));
+}
+function closePeek(){ $('#peek').classList.remove('on'); $('#peek').setAttribute('aria-hidden','true'); $('#scrim').classList.remove('on'); }
+$('#peekClose').addEventListener('click',closePeek);
+$('#scrim').addEventListener('click',closePeek);
+$('#lbClose').addEventListener('click',()=>$('#lb').classList.remove('on'));
+$('#lb').addEventListener('click',e=>{ if(e.target.id==='lb') $('#lb').classList.remove('on'); });
+
+render('resumen');
+</script>
+</body>
+</html>
